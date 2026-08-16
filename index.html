@@ -11,63 +11,66 @@
         margin: 0;
         overflow: hidden;
         background-color: #000000;
-        font-family: sans-serif;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       }
-      #overlay {
+      #top-bar {
         position: fixed;
-        top: 0;
+        top: 15px;
         left: 0;
-        width: 100vw;
-        height: 100vh;
-        background: #111827;
-        z-index: 999999;
+        width: 100%;
         display: flex;
-        flex-direction: column;
-        justify-content: center;
+        justify-content: space-between;
         align-items: center;
-        gap: 24px;
+        padding: 0 15px;
+        box-sizing: border-box;
+        z-index: 99999;
+        pointer-events: none;
       }
-      #overlay h1 {
+      #project-title {
         color: #ffffff;
-        font-size: 26px;
-        margin: 0;
+        font-size: 16px;
         font-weight: bold;
-        text-align: center;
+        background: rgba(0, 0, 0, 0.65);
+        padding: 8px 14px;
+        border-radius: 20px;
+        backdrop-filter: blur(4px);
       }
-      #start-btn {
-        padding: 16px 36px;
-        font-size: 18px;
+      #btn-sound {
+        pointer-events: auto;
+        padding: 8px 16px;
+        font-size: 14px;
         font-weight: bold;
-        background-color: #2563eb;
+        background: #2563eb;
         color: #ffffff;
         border: none;
-        border-radius: 12px;
+        border-radius: 20px;
         cursor: pointer;
-      }
-      #start-btn:active {
-        background-color: #1d4ed8;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
       }
     </style>
   </head>
   <body>
-    <div id="overlay">
-      <h1>100 Citas Juntos</h1>
-      <button id="start-btn">Comenzar Experiencia</button>
+    <div id="top-bar">
+      <div id="project-title">100 Citas Juntos</div>
+      <button id="btn-sound">Activar Sonido</button>
     </div>
 
+    <!-- autoStart: true para que pida permisos de cámara directamente -->
     <a-scene 
-      mindar-image="imageTargetSrc: ./targets.mind; autoStart: false; uiScanning: yes;" 
+      mindar-image="imageTargetSrc: ./targets.mind; autoStart: true; uiScanning: yes;" 
       color-space="sRGB" 
       renderer="colorManagement: true, physicallyCorrectLights: true" 
       vr-mode-ui="enabled: false" 
       device-orientation-permission-ui="enabled: false">
 
       <a-assets>
+        <!-- Ruta actualizada a la carpeta Videos/Cita001.mp4 -->
         <video 
           id="vid0" 
-          src="./Cita001Concierto.mp4" 
+          src="./Videos/Cita001.mp4" 
           preload="auto" 
           loop 
+          muted
           crossorigin="anonymous"
           playsinline 
           webkit-playsinline>
@@ -89,28 +92,22 @@
     </a-scene>
 
     <script>
-      const overlay = document.getElementById('overlay');
-      const startBtn = document.getElementById('start-btn');
+      const soundBtn = document.getElementById('btn-sound');
       const video = document.getElementById('vid0');
       const target0 = document.getElementById('target0');
-      const sceneEl = document.querySelector('a-scene');
+      let soundActivated = false;
 
-      startBtn.addEventListener('click', () => {
-        overlay.style.display = 'none';
-
-        // Desbloqueo nativo de audio/video
+      soundBtn.addEventListener('click', () => {
+        soundActivated = true;
         video.muted = false;
-        video.play().then(() => {
-          video.pause();
-        }).catch(err => console.log('Audio init:', err));
-
-        // Arrancar cámara y tracking
-        sceneEl.systems['mindar-image-system'].start();
+        soundBtn.style.display = 'none';
       });
 
       target0.addEventListener('targetFound', () => {
-        video.muted = false;
-        video.play();
+        if (soundActivated) {
+          video.muted = false;
+        }
+        video.play().catch(e => console.log('Error de reproducción:', e));
       });
 
       target0.addEventListener('targetLost', () => {
