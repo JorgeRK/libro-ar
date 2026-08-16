@@ -56,9 +56,11 @@
     let videoActual = null;
     let flashEncendido = false;
 
-    // CONFIGURACIÓN DE VIDEOS: Puedes reemplazar los locales por enlaces de Dropbox (dl=1)
+    // CONFIGURACIÓN DE VIDEOS CON EL ENLACE CORRECTO DE DROPBOX
     function obtenerRuta(index) {
-      if (index === 0) return "https://dl.dropboxusercontent.com/scl/fi/9yayjdl0ww6ttky1qltjw/Concierto-Jes-s-Adrian-Romero.mp4?rlkey=25dptd6n4bvf7f5b3citiipjz&st=5kg3ud9a&dl=1";
+      if (index === 0) {
+        return "https://dl.dropboxusercontent.com/scl/fi/dobbnxhfzthcu4dhzelnq/Cita001.mp4?rlkey=tglp08wwrhtg92l5o1lzy5mzp&st=pjmj2twm&dl=1";
+      }
       return `./Videos/Cita${String(index + 1).padStart(3, '0')}.mp4`;
     }
 
@@ -71,7 +73,7 @@
         if (videoActual !== rutaVideo) {
           video.src = rutaVideo;
           videoActual = rutaVideo;
-          video.load(); // Fuerza al navegador a procesar la nueva fuente
+          video.load(); 
         }
         container.style.display = 'block';
         video.play().catch(e => console.log('Error play:', e));
