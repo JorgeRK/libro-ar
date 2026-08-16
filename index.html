@@ -56,10 +56,19 @@
     let videoActual = null;
     let flashEncendido = false;
 
-    // CONFIGURACIÓN DE VIDEOS CON EL ENLACE CORRECTO DE DROPBOX
+    // LISTA DE ENLACES DE DROPBOX
+    // Vaya pegando aquí sus enlaces en el orden correcto.
+    const enlacesDropbox = [
+      "https://dl.dropboxusercontent.com/scl/fi/dobbnxhfzthcu4dhzelnq/Cita001.mp4?rlkey=tglp08wwrhtg92l5o1lzy5mzp&st=pjmj2twm&dl=1", // 0: Cita 001
+      // "AQUI_PEGA_EL_ENLACE_DE_LA_CITA_002", // 1: Cita 002
+      // "AQUI_PEGA_EL_ENLACE_DE_LA_CITA_003", // 2: Cita 003
+      // Siga agregando hacia abajo a medida que tenga más...
+    ];
+
     function obtenerRuta(index) {
-      if (index === 0) {
-        return "https://dl.dropboxusercontent.com/scl/fi/dobbnxhfzthcu4dhzelnq/Cita001.mp4?rlkey=tglp08wwrhtg92l5o1lzy5mzp&st=pjmj2twm&dl=1";
+      // Si hay un enlace en la lista para esta cita, úselo. Si no, busca en local por defecto.
+      if (enlacesDropbox[index] && enlacesDropbox[index].trim() !== "") {
+        return enlacesDropbox[index];
       }
       return `./Videos/Cita${String(index + 1).padStart(3, '0')}.mp4`;
     }
