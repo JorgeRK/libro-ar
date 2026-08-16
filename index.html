@@ -58,7 +58,6 @@
 
     <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
     
-    <!-- Generador dinámico de targets -->
     <a-entity id="targets-group"></a-entity>
   </a-scene>
 
@@ -71,7 +70,9 @@
     const targetsGroup = document.getElementById('targets-group');
     const sceneEl = document.querySelector('a-scene');
 
-    // Crea automáticamente los 100 targets vinculados a ./Videos/Cita001.mp4 ... Cita100.mp4
+    // Variable clave: memoriza la ruta del último video que se cargó
+    let videoActual = null;
+
     for (let i = 0; i < 100; i++) {
       const el = document.createElement('a-entity');
       el.setAttribute('mindar-image-target', `targetIndex: ${i}`);
@@ -79,18 +80,21 @@
       const numCita = String(i + 1).padStart(3, '0');
       const rutaVideo = `./Videos/Cita${numCita}.mp4`;
 
-      // Cuando detecta la imagen (Muestra el video)
       el.addEventListener('targetFound', () => {
         if (container.style.display !== 'block') {
-          video.src = rutaVideo;
+          // Cambia el origen del video SOLO si se está enfocando una foto distinta
+          if (videoActual !== rutaVideo) {
+            video.src = rutaVideo;
+            videoActual = rutaVideo;
+          }
           video.muted = false;
           container.style.display = 'block';
           video.play().catch(e => console.log('Error play:', e));
         }
       });
 
-      // Cuando pierde la imagen (Oculta el video)
       el.addEventListener('targetLost', () => {
+        // Pausa el video pero no resetea la ruta, así guarda el progreso
         video.pause();
         container.style.display = 'none';
       });
