@@ -70,7 +70,6 @@
     const targetsGroup = document.getElementById('targets-group');
     const sceneEl = document.querySelector('a-scene');
 
-    // Variable clave: memoriza la ruta del último video que se cargó
     let videoActual = null;
 
     for (let i = 0; i < 100; i++) {
@@ -81,22 +80,21 @@
       const rutaVideo = `./Videos/Cita${numCita}.mp4`;
 
       el.addEventListener('targetFound', () => {
-        if (container.style.display !== 'block') {
-          // Cambia el origen del video SOLO si se está enfocando una foto distinta
-          if (videoActual !== rutaVideo) {
-            video.src = rutaVideo;
-            videoActual = rutaVideo;
-          }
-          video.muted = false;
-          container.style.display = 'block';
-          video.play().catch(e => console.log('Error play:', e));
+        if (videoActual !== rutaVideo) {
+          video.src = rutaVideo;
+          videoActual = rutaVideo;
         }
+        
+        video.muted = false;
+        container.style.display = 'block';
+        video.play().catch(e => console.log('Error play:', e));
       });
 
       el.addEventListener('targetLost', () => {
-        // Pausa el video pero no resetea la ruta, así guarda el progreso
-        video.pause();
-        container.style.display = 'none';
+        if (videoActual === rutaVideo) {
+          video.pause();
+          container.style.display = 'none';
+        }
       });
 
       targetsGroup.appendChild(el);
@@ -111,6 +109,8 @@
 
     btnCerrar.addEventListener('click', () => {
       video.pause();
+      video.currentTime = 0; // Reinicia el video a cero
+      videoActual = null;    // Borra la memoria para que actúe como un escaneo nuevo la próxima vez
       container.style.display = 'none';
     });
   </script>
