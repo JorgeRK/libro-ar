@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.2/dist/mindar-image-aframe.prod.js"></script>
+    <style>
+      body { margin: 0; overflow: hidden; }
+      #btn-sound {
+        position: absolute; top: 15px; left: 15px; z-index: 999;
+        padding: 10px 16px; background: rgba(0,0,0,0.75); color: #fff;
+        border: none; border-radius: 8px; font-family: sans-serif; font-size: 14px;
+      }
+    </style>
+  </head>
+  <body>
+    <button id="btn-sound" onclick="document.getElementById('vid0').muted = false; this.style.display = 'none';">Activar Sonido</button>
+
+    <a-scene mindar-image="imageTargetSrc: ./targets.mind; autoStart: true; uiScanning: yes;" 
+             color-space="sRGB" 
+             renderer="colorManagement: true, physicallyCorrectLights" 
+             vr-mode-ui="enabled: false" 
+             device-orientation-permission-ui="enabled: false">
+      
+      <a-assets>
+        <video id="vid0" src="./Cita001Concierto.mp4" preload="auto" loop playsinline webkit-playsinline></video>
+      </a-assets>
+
+      <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+
+      <a-entity mindar-image-target="targetIndex: 0">
+        <a-video src="#vid0" position="0 0 0" height="1" width="0.75" rotation="0 0 0"></a-video>
+      </a-entity>
+    </a-scene>
+
+    <script>
+      const target = document.querySelector('[mindar-image-target]');
+      const video = document.querySelector('#vid0');
+
+      target.addEventListener('targetFound', () => {
+        video.play();
+      });
+      target.addEventListener('targetLost', () => {
+        video.pause();
+      });
+    </script>
+  </body>
+</html>
