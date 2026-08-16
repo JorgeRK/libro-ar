@@ -8,55 +8,18 @@
   <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.2/dist/mindar-image-aframe.prod.js"></script>
   <style>
     * { box-sizing: border-box; }
-    html, body {
-      margin: 0; padding: 0; width: 100%; height: 100%;
-      overflow: hidden; background: transparent;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    }
+    html, body { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: transparent; font-family: sans-serif; }
     
-    #inicio {
-      position: fixed; inset: 0; width: 100vw; height: 100vh;
-      z-index: 10000;
-      background: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.7)), url('./fondo.jpg');
-      background-size: cover; background-position: center;
-    }
-
-    #contenedor-textos {
-      position: absolute;
-      bottom: 15vh;
-      width: 100%;
-      display: flex; flex-direction: column; align-items: center; gap: 15px;
-    }
+    #inicio { position: fixed; inset: 0; width: 100vw; height: 100vh; z-index: 10000; background: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.7)), url('./fondo.jpg'); background-size: cover; background-position: center; }
+    #contenedor-textos { position: absolute; bottom: 15vh; width: 100%; display: flex; flex-direction: column; align-items: center; gap: 15px; }
+    #inicio h1 { color: #fff; font-size: 32px; margin: 0; font-weight: 700; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
+    #btn-comenzar { border: 0; padding: 16px 40px; background: #2563eb; color: white; font-size: 18px; font-weight: 700; border-radius: 12px; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.4); }
     
-    #inicio h1 { color: #fff; font-size: 32px; margin: 0; font-weight: 700; text-align: center; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
+    #btn-flash { position: fixed; top: 20px; left: 20px; z-index: 4999; background: rgba(0, 0, 0, 0.7); color: #fff; border: 1px solid #fff; border-radius: 50%; width: 44px; height: 44px; font-size: 20px; cursor: pointer; display: none; align-items: center; justify-content: center; }
     
-    #btn-comenzar {
-      border: 0; padding: 16px 40px; background: #2563eb; color: white;
-      font-size: 18px; font-weight: 700; border-radius: 12px; cursor: pointer;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.4);
-    }
-    #btn-comenzar:active { transform: scale(0.97); }
-    
-    /* Botón de la linterna (Visible al escanear) */
-    #btn-flash {
-      position: fixed; top: 20px; left: 20px; z-index: 4999;
-      background: rgba(0, 0, 0, 0.7); color: #fff; border: 1px solid #fff;
-      border-radius: 50%; width: 44px; height: 44px; font-size: 20px;
-      cursor: pointer; display: none; align-items: center; justify-content: center;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.4);
-    }
-
-    #video-container {
-      position: fixed; inset: 0; width: 100vw; height: 100vh;
-      z-index: 5000; display: none; background: #000;
-    }
+    #video-container { position: fixed; inset: 0; width: 100vw; height: 100vh; z-index: 5000; display: none; background: #000; }
     #video-pantalla { width: 100%; height: 100%; object-fit: cover; }
-    #btn-cerrar {
-      position: absolute; top: 20px; right: 20px; z-index: 5001;
-      background: rgba(0, 0, 0, 0.7); color: #fff; border: 1px solid #fff;
-      border-radius: 50%; width: 44px; height: 44px; font-size: 22px;
-      cursor: pointer; display: flex; align-items: center; justify-content: center;
-    }
+    #btn-cerrar { position: absolute; top: 20px; right: 20px; z-index: 5001; background: rgba(0, 0, 0, 0.7); color: #fff; border: 1px solid #fff; border-radius: 50%; width: 44px; height: 44px; font-size: 22px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
   </style>
 </head>
 <body>
@@ -75,13 +38,7 @@
     <video id="video-pantalla" playsinline webkit-playsinline loop preload="auto"></video>
   </div>
 
-  <a-scene
-    mindar-image="imageTargetSrc: ./targets.mind; autoStart: false; uiScanning: yes;"
-    color-space="sRGB"
-    renderer="colorManagement: true; physicallyCorrectLights: true;"
-    vr-mode-ui="enabled: false"
-    device-orientation-permission-ui="enabled: false">
-    
+  <a-scene mindar-image="imageTargetSrc: ./targets.mind; autoStart: false; uiScanning: yes;" color-space="sRGB" renderer="colorManagement: true; physicallyCorrectLights: true;" vr-mode-ui="enabled: false" device-orientation-permission-ui="enabled: false">
     <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
     <a-entity id="targets-group"></a-entity>
   </a-scene>
@@ -99,18 +56,23 @@
     let videoActual = null;
     let flashEncendido = false;
 
+    // CONFIGURACIÓN DE VIDEOS: Puedes reemplazar los locales por enlaces de Dropbox (dl=1)
+    function obtenerRuta(index) {
+      if (index === 0) return "https://dl.dropboxusercontent.com/scl/fi/9yayjdl0ww6ttky1qltjw/Concierto-Jes-s-Adrian-Romero.mp4?rlkey=25dptd6n4bvf7f5b3citiipjz&st=5kg3ud9a&dl=1";
+      return `./Videos/Cita${String(index + 1).padStart(3, '0')}.mp4`;
+    }
+
     for (let i = 0; i < 100; i++) {
       const el = document.createElement('a-entity');
       el.setAttribute('mindar-image-target', `targetIndex: ${i}`);
-      const numCita = String(i + 1).padStart(3, '0');
-      const rutaVideo = `./Videos/Cita${numCita}.mp4`;
+      const rutaVideo = obtenerRuta(i);
 
       el.addEventListener('targetFound', () => {
         if (videoActual !== rutaVideo) {
           video.src = rutaVideo;
           videoActual = rutaVideo;
+          video.load(); // Fuerza al navegador a procesar la nueva fuente
         }
-        video.muted = false;
         container.style.display = 'block';
         video.play().catch(e => console.log('Error play:', e));
       });
@@ -126,50 +88,27 @@
 
     btnComenzar.addEventListener('click', async () => {
       inicio.style.display = 'none';
-      btnFlash.style.display = 'flex'; // Muestra el botón de la linterna
-      video.muted = false;
+      btnFlash.style.display = 'flex';
       const mindarSystem = sceneEl.systems['mindar-image-system'];
       await mindarSystem.start();
     });
 
     btnCerrar.addEventListener('click', () => {
       video.pause();
-      video.currentTime = 0; 
-      videoActual = null;    
       container.style.display = 'none';
     });
 
-    // Función para la linterna
     btnFlash.addEventListener('click', async () => {
       try {
-        // Busca el elemento de video nativo que usa MindAR para la cámara
-        const videos = document.querySelectorAll('video');
-        let trackCamara = null;
-        
-        videos.forEach(v => {
-          if (v.id !== 'video-pantalla' && v.srcObject) {
-            trackCamara = v.srcObject.getVideoTracks()[0];
-          }
-        });
-
-        if (trackCamara) {
-          const capabilities = trackCamara.getCapabilities();
-          if (!capabilities.torch) {
-            alert('El navegador no permite encender la linterna en este dispositivo.');
-            return;
-          }
-
+        const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
+        const track = stream.getVideoTracks()[0];
+        const capabilities = track.getCapabilities();
+        if (capabilities.torch) {
           flashEncendido = !flashEncendido;
-          await trackCamara.applyConstraints({
-            advanced: [{ torch: flashEncendido }]
-          });
-
-          // Cambia el color del botón para indicar si está encendido
+          await track.applyConstraints({ advanced: [{ torch: flashEncendido }] });
           btnFlash.style.background = flashEncendido ? '#facc15' : 'rgba(0, 0, 0, 0.7)';
         }
-      } catch (err) {
-        console.log('Error al acceder al flash:', err);
-      }
+      } catch (err) { alert('No se pudo activar la linterna'); }
     });
   </script>
 </body>
