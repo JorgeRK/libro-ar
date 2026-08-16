@@ -10,7 +10,8 @@
     * { box-sizing: border-box; }
     html, body {
       margin: 0; padding: 0; width: 100%; height: 100%;
-      overflow: hidden; background: #000;
+      overflow: hidden; 
+      background: transparent; /* <-- ESTA ES LA CORRECCIÓN */
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     }
     #inicio {
@@ -109,8 +110,8 @@
 
     btnCerrar.addEventListener('click', () => {
       video.pause();
-      video.currentTime = 0; // Reinicia el video a cero
-      videoActual = null;    // Borra la memoria para que actúe como un escaneo nuevo la próxima vez
+      video.currentTime = 0; 
+      videoActual = null;    
       container.style.display = 'none';
     });
   </script>
