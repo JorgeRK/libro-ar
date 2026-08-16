@@ -1,3 +1,11 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Jorge & Astrid</title>
+  <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.2/dist/mindar-image-aframe.prod.js"></script>
   <style>
     * { box-sizing: border-box; }
     html, body {
@@ -9,24 +17,23 @@
     #inicio {
       position: fixed; inset: 0; width: 100vw; height: 100vh;
       z-index: 10000;
-      /* Eliminamos el flex-end para usar posicionamiento absoluto controlado */
-      display: flex; flex-direction: column; align-items: center;
       background: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.7)), url('./fondo.jpg');
       background-size: cover; background-position: center;
     }
 
-    /* Ajuste para los elementos centrados pero un poco más arriba */
     #contenedor-textos {
-      margin-top: 55%; /* Esto asegura que el bloque empiece desde el centro hacia arriba */
-      display: flex; flex-direction: column; align-items: center; gap: 15px;
+      position: absolute;
+      bottom: 15vh; /* Lo levanta un 15% desde abajo, a prueba de cualquier navegador */
       width: 100%;
+      display: flex; flex-direction: column; align-items: center; gap: 15px;
     }
     
-    #inicio h1 { color: #fff; font-size: 28px; margin: 0; font-weight: 700; text-align: center; }
+    #inicio h1 { color: #fff; font-size: 32px; margin: 0; font-weight: 700; text-align: center; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
     
     #btn-comenzar {
       border: 0; padding: 16px 40px; background: #2563eb; color: white;
       font-size: 18px; font-weight: 700; border-radius: 12px; cursor: pointer;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.4);
     }
     #btn-comenzar:active { transform: scale(0.97); }
     
@@ -42,3 +49,81 @@
       cursor: pointer; display: flex; align-items: center; justify-content: center;
     }
   </style>
+</head>
+<body>
+
+  <div id="inicio">
+    <div id="contenedor-textos">
+      <h1>Jorge & Astrid</h1>
+      <button id="btn-comenzar">Comenzar Experiencia</button>
+    </div>
+  </div>
+
+  <div id="video-container">
+    <button id="btn-cerrar">&times;</button>
+    <video id="video-pantalla" playsinline webkit-playsinline loop preload="auto"></video>
+  </div>
+
+  <a-scene
+    mindar-image="imageTargetSrc: ./targets.mind; autoStart: false; uiScanning: yes;"
+    color-space="sRGB"
+    renderer="colorManagement: true; physicallyCorrectLights: true;"
+    vr-mode-ui="enabled: false"
+    device-orientation-permission-ui="enabled: false">
+    
+    <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+    <a-entity id="targets-group"></a-entity>
+  </a-scene>
+
+  <script>
+    const inicio = document.getElementById('inicio');
+    const btnComenzar = document.getElementById('btn-comenzar');
+    const container = document.getElementById('video-container');
+    const video = document.getElementById('video-pantalla');
+    const btnCerrar = document.getElementById('btn-cerrar');
+    const targetsGroup = document.getElementById('targets-group');
+    const sceneEl = document.querySelector('a-scene');
+
+    let videoActual = null;
+
+    for (let i = 0; i < 100; i++) {
+      const el = document.createElement('a-entity');
+      el.setAttribute('mindar-image-target', `targetIndex: ${i}`);
+      const numCita = String(i + 1).padStart(3, '0');
+      const rutaVideo = `./Videos/Cita${numCita}.mp4`;
+
+      el.addEventListener('targetFound', () => {
+        if (videoActual !== rutaVideo) {
+          video.src = rutaVideo;
+          videoActual = rutaVideo;
+        }
+        video.muted = false;
+        container.style.display = 'block';
+        video.play().catch(e => console.log('Error play:', e));
+      });
+
+      el.addEventListener('targetLost', () => {
+        if (videoActual === rutaVideo) {
+          video.pause();
+          container.style.display = 'none';
+        }
+      });
+      targetsGroup.appendChild(el);
+    }
+
+    btnComenzar.addEventListener('click', async () => {
+      inicio.style.display = 'none';
+      video.muted = false;
+      const mindarSystem = sceneEl.systems['mindar-image-system'];
+      await mindarSystem.start();
+    });
+
+    btnCerrar.addEventListener('click', () => {
+      video.pause();
+      video.currentTime = 0; 
+      videoActual = null;    
+      container.style.display = 'none';
+    });
+  </script>
+</body>
+</html>
