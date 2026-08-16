@@ -1,76 +1,118 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
     <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.2/dist/mindar-image-aframe.prod.js"></script>
     <style>
       body {
         margin: 0;
+        padding: 0;
         overflow: hidden;
+        background-color: #000;
+        font-family: sans-serif;
       }
+
+      /* Contenedor del video en pantalla completa */
+      #fullscreen-video-container {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        z-index: 99999;
+        background: #000;
+      }
+
+      #fullscreen-video {
+        width: 100%;
+        height: 100%;
+        object-fit: cover; /* Llena toda la pantalla del móvil sin bordes negros */
+      }
+
+      /* Botón para cerrar el video y volver a escanear */
+      #btn-close {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        z-index: 100000;
+        background: rgba(0, 0, 0, 0.7);
+        color: #fff;
+        border: 1px solid #fff;
+        border-radius: 50%;
+        width: 44px;
+        height: 44px;
+        font-size: 20px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      /* Botón de activación de sonido */
       #btn-sound {
         position: absolute;
         top: 20px;
         left: 20px;
-        z-index: 9999;
-        padding: 12px 20px;
+        z-index: 10000;
+        padding: 12px 18px;
         background: rgba(0, 0, 0, 0.85);
-        color: #ffffff;
-        border: 2px solid #ffffff;
+        color: #fff;
+        border: 2px solid #fff;
         border-radius: 8px;
-        font-family: sans-serif;
-        font-size: 15px;
+        font-size: 14px;
         font-weight: bold;
       }
     </style>
   </head>
   <body>
-    <button id="btn-sound" onclick="document.getElementById('vid0').muted = false; this.style.display = 'none';">
-      Activar Sonido
-    </button>
+    <button id="btn-sound">Activar Sonido</button>
 
+    <!-- Reproductor nativo pantalla completa -->
+    <div id="fullscreen-video-container">
+      <button id="btn-close">&times;</button>
+      <video id="fullscreen-video" playsinline webkit-playsinline loop></video>
+    </div>
+
+    <!-- Escáner MindAR -->
     <a-scene 
       mindar-image="imageTargetSrc: ./targets.mind; autoStart: true; uiScanning: yes;" 
       color-space="sRGB" 
-      renderer="colorManagement: true, physicallyCorrectLights" 
       vr-mode-ui="enabled: false" 
       device-orientation-permission-ui="enabled: false">
-      
-      <a-assets>
-        <video 
-          id="vid0" 
-          src="./Cita001Concierto.mp4" 
-          preload="auto" 
-          loop 
-          crossorigin="anonymous"
-          playsinline 
-          webkit-playsinline>
-        </video>
-      </a-assets>
 
       <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
 
-      <a-entity mindar-image-target="targetIndex: 0">
-        <a-video 
-          src="#vid0" 
-          position="0 0 0" 
-          height="1.45" 
-          width="1" 
-          rotation="0 0 0">
-        </a-video>
-      </a-entity>
+      <a-entity id="target0" mindar-image-target="targetIndex: 0"></a-entity>
     </a-scene>
 
     <script>
-      const target = document.querySelector('[mindar-image-target]');
-      const video = document.querySelector('#vid0');
+      let soundEnabled = false;
+      const soundBtn = document.getElementById('btn-sound');
+      const container = document.getElementById('fullscreen-video-container');
+      const video = document.getElementById('fullscreen-video');
+      const closeBtn = document.getElementById('btn-close');
+      const target0 = document.getElementById('target0');
 
-      target.addEventListener('targetFound', () => {
-        video.play();
+      soundBtn.addEventListener('click', () => {
+        soundEnabled = true;
+        soundBtn.style.display = 'none';
       });
-      target.addEventListener('targetLost', () => {
+
+      target0.addEventListener('targetFound', () => {
+        if (container.style.display !== 'block') {
+          video.src = './Cita001Concierto.mp4';
+          video.muted = !soundEnabled;
+          container.style.display = 'block';
+          video.play().catch(e => console.log(e));
+        }
+      });
+
+      closeBtn.addEventListener('click', () => {
         video.pause();
+        video.src = '';
+        container.style.display = 'none';
       });
     </script>
   </body>
