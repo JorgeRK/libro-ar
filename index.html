@@ -1,117 +1,444 @@
 <!DOCTYPE html>
 <html lang="es">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <title>100 Citas Juntos</title>
-    <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.2/dist/mindar-image-aframe.prod.js"></script>
-    <style>
-      body {
-        margin: 0;
-        overflow: hidden;
-        background-color: #000;
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      }
-      #overlay {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100vw;
-        height: 100vh;
-        background: #111827;
-        z-index: 999999;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        gap: 20px;
-      }
-      #overlay h1 {
-        color: #ffffff;
-        font-size: 26px;
-        margin: 0;
-        font-weight: bold;
-      }
-      #start-btn {
-        padding: 14px 32px;
-        font-size: 16px;
-        font-weight: bold;
-        background-color: #2563eb;
-        color: #ffffff;
-        border: none;
-        border-radius: 10px;
-        cursor: pointer;
-      }
-    </style>
-  </head>
-  <body>
-    <div id="overlay">
-      <h1>100 Citas Juntos</h1>
-      <button id="start-btn">Comenzar</button>
+<head>
+  <meta charset="utf-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width,
+             initial-scale=1.0,
+             maximum-scale=1.0,
+             user-scalable=no"
+  >
+
+  <title>100 Citas Juntos</title>
+
+  <!-- A-Frame -->
+  <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
+
+  <!-- MindAR -->
+  <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.2/dist/mindar-image-aframe.prod.js"></script>
+
+  <style>
+
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: #000;
+      font-family:
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        Roboto,
+        sans-serif;
+    }
+
+    /* Pantalla inicial */
+
+    #inicio {
+      position: fixed;
+      inset: 0;
+
+      width: 100vw;
+      height: 100vh;
+
+      background: #111827;
+
+      display: flex;
+      flex-direction: column;
+
+      justify-content: center;
+      align-items: center;
+
+      z-index: 999999;
+    }
+
+    #titulo {
+      color: white;
+
+      font-size: 30px;
+      font-weight: bold;
+
+      margin-bottom: 30px;
+
+      text-align: center;
+    }
+
+    #comenzar {
+      padding: 18px 40px;
+
+      font-size: 20px;
+      font-weight: bold;
+
+      color: white;
+      background: #2563eb;
+
+      border: none;
+      border-radius: 12px;
+
+      box-shadow:
+        0 5px 20px rgba(0,0,0,0.3);
+    }
+
+    /* Botón de sonido */
+
+    #sonido {
+      position: fixed;
+
+      top: 20px;
+      right: 20px;
+
+      z-index: 999998;
+
+      padding: 12px 18px;
+
+      color: white;
+
+      background: #2563eb;
+
+      border: none;
+      border-radius: 25px;
+
+      font-size: 15px;
+      font-weight: bold;
+
+      display: none;
+    }
+
+  </style>
+</head>
+
+
+<body>
+
+  <!-- PANTALLA INICIAL -->
+
+  <div id="inicio">
+
+    <div id="titulo">
+      100 Citas Juntos
     </div>
 
-    <a-scene 
-      mindar-image="imageTargetSrc: ./targets.mind; autoStart: false; uiScanning: yes;" 
-      color-space="sRGB" 
-      renderer="colorManagement: true, physicallyCorrectLights: true" 
-      vr-mode-ui="enabled: false" 
-      device-orientation-permission-ui="enabled: false">
+    <button id="comenzar">
+      Comenzar Experiencia
+    </button>
 
-      <a-assets>
-        <video 
-          id="vid0" 
-          src="./Videos/Cita001.mp4" 
-          preload="auto" 
-          loop 
-          playsinline 
-          webkit-playsinline 
-          crossorigin="anonymous">
-        </video>
-      </a-assets>
+  </div>
 
-      <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
 
-      <a-entity id="target0" mindar-image-target="targetIndex: 0">
-        <!-- Dimensiones ajustadas para cubrir la foto completa (ancho 0.68 x alto 1) -->
-        <a-video 
-          id="ar-video0" 
-          src="#vid0" 
-          position="0 0 0" 
-          height="1" 
-          width="0.68" 
-          rotation="0 0 0">
-        </a-video>
-      </a-entity>
-    </a-scene>
+  <!-- BOTÓN DE SONIDO -->
 
-    <script>
-      const overlay = document.getElementById('overlay');
-      const startBtn = document.getElementById('start-btn');
-      const video = document.getElementById('vid0');
-      const target0 = document.getElementById('target0');
-      const sceneEl = document.querySelector('a-scene');
+  <button id="sonido">
+    🔊 Activar sonido
+  </button>
 
-      startBtn.addEventListener('click', () => {
-        overlay.style.display = 'none';
 
-        // Despierta el motor de video y desbloquea el audio
-        video.muted = false;
-        video.play().then(() => {
-          video.pause();
-        }).catch(err => console.log(err));
+  <!-- AR -->
 
-        // Arranca la cámara
-        sceneEl.systems['mindar-image-system'].start();
-      });
+  <a-scene
 
-      target0.addEventListener('targetFound', () => {
-        video.play();
-      });
+    mindar-image="
+      imageTargetSrc: ./targets.mind;
+      autoStart: false;
+      uiScanning: yes;
+    "
 
-      target0.addEventListener('targetLost', () => {
+    color-space="sRGB"
+
+    renderer="
+      colorManagement: true;
+      physicallyCorrectLights: true;
+    "
+
+    vr-mode-ui="enabled: false"
+
+    device-orientation-permission-ui="enabled: false"
+
+    embedded
+
+  >
+
+    <!-- VIDEO -->
+
+    <a-assets>
+
+      <video
+
+        id="vid0"
+
+        src="./Videos/Cita001.mp4"
+
+        preload="auto"
+
+        loop
+
+        muted
+
+        playsinline
+
+        webkit-playsinline
+
+        crossorigin="anonymous"
+
+      ></video>
+
+    </a-assets>
+
+
+    <!-- CÁMARA -->
+
+    <a-camera
+
+      position="0 0 0"
+
+      look-controls="enabled: false"
+
+    ></a-camera>
+
+
+    <!-- TARGET 0 = CITA001 -->
+
+    <a-entity
+
+      id="target0"
+
+      mindar-image-target="targetIndex: 0"
+
+    >
+
+      <a-video
+
+        id="videoAR"
+
+        src="#vid0"
+
+        position="0 0 0"
+
+        width="0.68"
+
+        height="1"
+
+        rotation="0 0 0"
+
+      ></a-video>
+
+    </a-entity>
+
+
+  </a-scene>
+
+
+  <script>
+
+    const inicio =
+      document.getElementById("inicio");
+
+    const comenzar =
+      document.getElementById("comenzar");
+
+    const sonido =
+      document.getElementById("sonido");
+
+    const video =
+      document.getElementById("vid0");
+
+    const target =
+      document.getElementById("target0");
+
+    const scene =
+      document.querySelector("a-scene");
+
+
+    let experienciaIniciada = false;
+
+    let imagenDetectada = false;
+
+    let sonidoActivado = false;
+
+
+    /*
+    ==========================================
+    COMENZAR EXPERIENCIA
+    ==========================================
+    */
+
+    comenzar.addEventListener("click", async () => {
+
+      inicio.style.display = "none";
+
+      experienciaIniciada = true;
+
+      /*
+      IMPORTANTE:
+
+      El video comienza MUTED.
+      Esto evita que Chrome bloquee
+      la reproducción automática.
+      */
+
+      video.muted = true;
+
+      video.setAttribute("muted", "");
+
+      video.setAttribute("playsinline", "");
+
+
+      /*
+      Cargar video
+      */
+
+      video.load();
+
+
+      /*
+      Iniciar MindAR
+      */
+
+      try {
+
+        const mindar =
+          scene.systems["mindar-image-system"];
+
+        await mindar.start();
+
+        console.log("MindAR iniciado");
+
+      } catch (error) {
+
+        console.error(
+          "Error iniciando MindAR:",
+          error
+        );
+
+      }
+
+    });
+
+
+    /*
+    ==========================================
+    CUANDO ENCUENTRA CITA001
+    ==========================================
+    */
+
+    target.addEventListener(
+      "targetFound",
+      async () => {
+
+        console.log("Cita001 detectada");
+
+        imagenDetectada = true;
+
+
+        /*
+        El video siempre comienza
+        sin sonido.
+        */
+
+        video.muted = true;
+
+
+        try {
+
+          await video.play();
+
+          console.log(
+            "Cita001 reproduciéndose"
+          );
+
+
+          /*
+          Mostrar botón de sonido
+          */
+
+          if (!sonidoActivado) {
+
+            sonido.style.display =
+              "block";
+
+          }
+
+        } catch (error) {
+
+          console.error(
+            "No se pudo reproducir:",
+            error
+          );
+
+        }
+
+      }
+    );
+
+
+    /*
+    ==========================================
+    CUANDO DEJA DE VER CITA001
+    ==========================================
+    */
+
+    target.addEventListener(
+      "targetLost",
+      () => {
+
+        console.log(
+          "Cita001 perdida"
+        );
+
+        imagenDetectada = false;
+
         video.pause();
-      });
-    </script>
-  </body>
+
+        /*
+        Ocultar botón de sonido
+        */
+
+        sonido.style.display =
+          "none";
+
+      }
+    );
+
+
+    /*
+    ==========================================
+    ACTIVAR SONIDO
+    ==========================================
+    */
+
+    sonido.addEventListener(
+      "click",
+      async () => {
+
+        sonidoActivado = true;
+
+        video.muted = false;
+
+        try {
+
+          await video.play();
+
+        } catch (error) {
+
+          console.error(
+            "Error activando sonido:",
+            error
+          );
+
+        }
+
+        sonido.style.display =
+          "none";
+
+      }
+    );
+
+
+  </script>
+
+</body>
 </html>
