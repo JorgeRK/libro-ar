@@ -1,52 +1,66 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
   <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>100 Citas Juntos</title>
     <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.2/dist/mindar-image-aframe.prod.js"></script>
     <style>
       body {
         margin: 0;
         overflow: hidden;
-        font-family: sans-serif;
+        background-color: #121212;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
       }
       #overlay {
         position: fixed;
         top: 0;
         left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.8);
-        z-index: 99999;
+        width: 100vw;
+        height: 100vh;
+        background: #1e1e1e;
+        z-index: 999999;
         display: flex;
         flex-direction: column;
         justify-content: center;
         align-items: center;
+        gap: 20px;
+      }
+      #overlay h1 {
         color: #ffffff;
+        font-size: 24px;
+        margin: 0;
+        font-weight: 600;
+        letter-spacing: 0.5px;
       }
       #start-btn {
-        padding: 14px 28px;
+        padding: 14px 32px;
         font-size: 16px;
-        font-weight: bold;
-        background: #2563eb;
-        color: white;
+        font-weight: 600;
+        background-color: #2563eb;
+        color: #ffffff;
         border: none;
-        border-radius: 8px;
+        border-radius: 12px;
         cursor: pointer;
+        box-shadow: 0 4px 14px rgba(37, 99, 235, 0.4);
+      }
+      #start-btn:active {
+        background-color: #1d4ed8;
+        transform: scale(0.98);
       }
     </style>
   </head>
   <body>
-    <!-- Pantalla de inicio para desbloquear permisos de audio y video -->
     <div id="overlay">
-      <p style="margin-bottom: 15px; font-size: 18px;">Libro de Recuerdos AR</p>
+      <h1>100 Citas Juntos</h1>
       <button id="start-btn">Comenzar Experiencia</button>
     </div>
 
     <a-scene 
-      mindar-image="imageTargetSrc: ./targets.mind; autoStart: false; uiScanning: yes;" 
+      mindar-image="imageTargetSrc: ./targets.mind; autoStart: false; uiScanning: yes; filterMinCF: 0.0001; filterBeta: 0.001;" 
       color-space="sRGB" 
-      renderer="colorManagement: true, physicallyCorrectLights" 
+      renderer="colorManagement: true, physicallyCorrectLights: true" 
       vr-mode-ui="enabled: false" 
       device-orientation-permission-ui="enabled: false">
 
@@ -54,7 +68,7 @@
         <video 
           id="vid0" 
           src="./Cita001Concierto.mp4" 
-          preload="auto" 
+          preload="metadata" 
           loop 
           crossorigin="anonymous"
           playsinline 
@@ -65,7 +79,13 @@
       <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
 
       <a-entity id="target0" mindar-image-target="targetIndex: 0">
-        <a-video id="ar-video0" src="#vid0" position="0 0 0" height="1" width="1" rotation="0 0 0"></a-video>
+        <a-plane 
+          id="video-screen0"
+          material="src: #vid0; opacity: 0; transparent: true" 
+          position="0 0 0" 
+          height="1" 
+          width="0.5625">
+        </a-plane>
       </a-entity>
     </a-scene>
 
@@ -73,37 +93,44 @@
       const overlay = document.getElementById('overlay');
       const startBtn = document.getElementById('start-btn');
       const video = document.getElementById('vid0');
-      const arVideo = document.getElementById('ar-video0');
+      const videoScreen = document.getElementById('video-screen0');
       const target0 = document.getElementById('target0');
       const sceneEl = document.querySelector('a-scene');
 
-      // Ajustar proporción exacta del video cuando carguen sus metadatos
+      // Calcular proporción vertical real
       video.addEventListener('loadedmetadata', () => {
-        const aspectRatio = video.videoWidth / video.videoHeight;
-        arVideo.setAttribute('width', aspectRatio);
-        arVideo.setAttribute('height', 1);
+        if (video.videoHeight > 0) {
+          const ratio = video.videoWidth / video.videoHeight;
+          videoScreen.setAttribute('width', ratio);
+          videoScreen.setAttribute('height', 1);
+        }
       });
 
-      startBtn.addEventListener('click', () => {
+      startBtn.addEventListener('click', async () => {
         overlay.style.display = 'none';
-        
-        // Desbloquear audio del navegador
-        video.muted = false;
-        video.play().then(() => {
-          video.pause();
-          video.currentTime = 0;
-        }).catch(e => console.log(e));
 
-        // Iniciar cámara MindAR
+        // Calentar textura de video y desbloquear audio
+        try {
+          video.muted = false;
+          await video.play();
+          video.pause();
+        } catch (err) {
+          console.warn('Audio policy bypass fallback:', err);
+        }
+
+        // Iniciar reconocimiento de cámara
         sceneEl.systems['mindar-image-system'].start();
       });
 
+      // Eventos de detección
       target0.addEventListener('targetFound', () => {
+        videoScreen.setAttribute('material', 'opacity', 1);
         video.muted = false;
         video.play();
       });
 
       target0.addEventListener('targetLost', () => {
+        videoScreen.setAttribute('material', 'opacity', 0);
         video.pause();
       });
     </script>
