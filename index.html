@@ -4,12 +4,19 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <title>100 Citas</title>
+  <title>100 Citas Juntos</title>
 
+  <!-- A-Frame -->
   <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
+
+  <!-- MindAR -->
   <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.2/dist/mindar-image-aframe.prod.js"></script>
 
   <style>
+    * {
+      box-sizing: border-box;
+    }
+
     html,
     body {
       margin: 0;
@@ -17,35 +24,104 @@
       width: 100%;
       height: 100%;
       overflow: hidden;
-      background: black;
+      background: #303030;
+      font-family: Arial, sans-serif;
     }
 
-    /* Video a pantalla completa */
-    #video-fullscreen {
+    /* =========================================
+       PANTALLA DE INICIO
+       ========================================= */
+
+    #inicio {
       position: fixed;
       inset: 0;
+
+      z-index: 5000;
+
+      display: flex;
+      flex-direction: column;
+
+      justify-content: center;
+      align-items: center;
+
+      background: #303030;
+
+      color: white;
+
+      text-align: center;
+    }
+
+    #inicio h1 {
+      margin: 0 20px 35px;
+
+      font-size: 30px;
+      font-weight: 500;
+    }
+
+    #btn-comenzar {
+      padding: 18px 45px;
+
+      border: none;
+      border-radius: 12px;
+
+      background: #2864e8;
+      color: white;
+
+      font-size: 22px;
+      font-weight: bold;
+
+      cursor: pointer;
+
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+    }
+
+    #btn-comenzar:active {
+      transform: scale(0.97);
+    }
+
+
+    /* =========================================
+       VIDEO A PANTALLA COMPLETA
+       ========================================= */
+
+    #video-fullscreen {
+      position: fixed;
+
+      top: 0;
+      left: 0;
 
       width: 100vw;
       height: 100vh;
 
       object-fit: cover;
 
-      z-index: 1000;
+      z-index: 3000;
 
       display: none;
 
       background: black;
+
+      /* Permite que MindAR siga recibiendo
+         la interacción y funcionando detrás */
+      pointer-events: none;
     }
 
-    /* Botón de sonido */
-    #btn-sound {
+
+    /* =========================================
+       BOTÓN DE SONIDO
+       ========================================= */
+
+    #btn-sonido {
       position: fixed;
 
       top: 20px;
       left: 50%;
+
       transform: translateX(-50%);
 
-      z-index: 2000;
+      z-index: 4000;
+
+      display: none;
 
       padding: 14px 24px;
 
@@ -53,18 +129,51 @@
       border-radius: 10px;
 
       background: rgba(0, 0, 0, 0.85);
+
       color: white;
 
-      font-family: Arial, sans-serif;
       font-size: 16px;
       font-weight: bold;
+    }
+
+
+    /* =========================================
+       CÁMARA / A-FRAME
+       ========================================= */
+
+    a-scene {
+      position: fixed;
+
+      inset: 0;
+
+      z-index: 1;
     }
   </style>
 </head>
 
+
 <body>
 
-  <!-- VIDEO QUE OCUPARÁ TODA LA PANTALLA -->
+
+  <!-- =========================================
+       PANTALLA DE INICIO
+       ========================================= -->
+
+  <div id="inicio">
+
+    <h1>100 Citas Juntos</h1>
+
+    <button id="btn-comenzar">
+      Comenzar Experiencia
+    </button>
+
+  </div>
+
+
+  <!-- =========================================
+       VIDEO
+       ========================================= -->
+
   <video
     id="video-fullscreen"
     playsinline
@@ -74,17 +183,24 @@
   </video>
 
 
-  <!-- BOTÓN PARA ACTIVAR SONIDO -->
-  <button id="btn-sound">
+  <!-- =========================================
+       BOTÓN DE SONIDO
+       ========================================= -->
+
+  <button id="btn-sonido">
     🔊 Activar sonido
   </button>
 
 
-  <!-- MINDAR -->
+  <!-- =========================================
+       ESCENA MINDAR
+       ========================================= -->
+
   <a-scene
+
     mindar-image="
       imageTargetSrc: ./targets.mind;
-      autoStart: true;
+      autoStart: false;
       uiScanning: yes;
       uiLoading: yes;
       uiError: yes;
@@ -95,11 +211,15 @@
     renderer="
       colorManagement: true;
       physicallyCorrectLights;
+      antialias: true;
     "
 
     vr-mode-ui="enabled: false"
 
     device-orientation-permission-ui="enabled: false">
+
+
+    <!-- CÁMARA -->
 
     <a-camera
       position="0 0 0"
@@ -107,129 +227,364 @@
     </a-camera>
 
 
-    <!--
-      TARGET 0 = Cita001
-      TARGET 1 = Cita002
-      TARGET 2 = Cita003
-      ...
-      TARGET 99 = Cita100
+    <!-- =========================================
+         100 TARGETS
 
-      Solo utilizamos estos targets para
-      detectar las imágenes.
-    -->
+         0  = Cita001
+         1  = Cita002
+         ...
+         99 = Cita100
+         ========================================= -->
 
-    <a-entity
-      mindar-image-target="targetIndex: 0"
-      data-cita="001">
-    </a-entity>
+    <a-entity mindar-image-target="targetIndex: 0" data-cita="001"></a-entity>
+    <a-entity mindar-image-target="targetIndex: 1" data-cita="002"></a-entity>
+    <a-entity mindar-image-target="targetIndex: 2" data-cita="003"></a-entity>
+    <a-entity mindar-image-target="targetIndex: 3" data-cita="004"></a-entity>
+    <a-entity mindar-image-target="targetIndex: 4" data-cita="005"></a-entity>
+    <a-entity mindar-image-target="targetIndex: 5" data-cita="006"></a-entity>
+    <a-entity mindar-image-target="targetIndex: 6" data-cita="007"></a-entity>
+    <a-entity mindar-image-target="targetIndex: 7" data-cita="008"></a-entity>
+    <a-entity mindar-image-target="targetIndex: 8" data-cita="009"></a-entity>
+    <a-entity mindar-image-target="targetIndex: 9" data-cita="010"></a-entity>
 
-    <a-entity
-      mindar-image-target="targetIndex: 1"
-      data-cita="002">
-    </a-entity>
+    <a-entity mindar-image-target="targetIndex: 10" data-cita="011"></a-entity>
+    <a-entity mindar-image-target="targetIndex: 11" data-cita="012"></a-entity>
+    <a-entity mindar-image-target="targetIndex: 12" data-cita="013"></a-entity>
+    <a-entity mindar-image-target="targetIndex: 13" data-cita="014"></a-entity>
+    <a-entity mindar-image-target="targetIndex: 14" data-cita="015"></a-entity>
+    <a-entity mindar-image-target="targetIndex: 15" data-cita="016"></a-entity>
+    <a-entity mindar-image-target="targetIndex: 16" data-cita="017"></a-entity>
+    <a-entity mindar-image-target="targetIndex: 17" data-cita="018"></a-entity>
+    <a-entity mindar-image-target="targetIndex: 18" data-cita="019"></a-entity>
+    <a-entity mindar-image-target="targetIndex: 19" data-cita="020"></a-entity>
 
-    <a-entity
-      mindar-image-target="targetIndex: 2"
-      data-cita="003">
-    </a-entity>
+    <a-entity mindar-image-target="targetIndex: 20" data-cita="021"></a-entity>
+    <a-entity mindar-image-target="targetIndex: 21" data-cita="022"></a-entity>
+    <a-entity mindar-image-target="targetIndex: 22" data-cita="023"></a-entity>
+    <a-entity mindar-image-target="targetIndex: 23" data-cita="024"></a-entity>
+    <a-entity mindar-image-target="targetIndex: 24" data-cita="025"></a-entity>
+    <a-entity mindar-image-target="targetIndex: 25" data-cita="026"></a-entity>
+    <a-entity mindar-image-target="targetIndex: 26" data-cita="027"></a-entity>
+    <a-entity mindar-image-target="targetIndex: 27" data-cita="028"></a-entity>
+    <a-entity mindar-image-target="targetIndex: 28" data-cita="029"></a-entity>
+    <a-entity mindar-image-target="targetIndex: 29" data-cita="030"></a-entity>
 
-    <a-entity
-      mindar-image-target="targetIndex: 3"
-      data-cita="004">
-    </a-entity>
+    <a-entity mindar-image-target="targetIndex: 30" data-cita="031"></a-entity>
+    <a-entity mindar-image-target="targetIndex: 31" data-cita="032"></a-entity>
+    <a-entity mindar-image-target="targetIndex: 32" data-cita="033"></a-entity>
+    <a-entity mindar-image-target="targetIndex: 33" data-cita="034"></a-entity>
+    <a-entity mindar-image-target="targetIndex: 34" data-cita="035"></a-entity>
+    <a-entity mindar-image-target="targetIndex: 35" data-cita="036"></a-entity>
+    <a-entity mindar-image-target="targetIndex: 36" data-cita="037"></a-entity>
+    <a-entity mindar-image-target="targetIndex: 37" data-cita="038"></a-entity>
+    <a-entity mindar-image-target="targetIndex: 38" data-cita="039"></a-entity>
+    <a-entity mindar-image-target="targetIndex: 39" data-cita="040"></a-entity>
 
-    <a-entity
-      mindar-image-target="targetIndex: 4"
-      data-cita="005">
-    </a-entity>
+    <a-entity mindar-image-target="targetIndex: 40" data-cita="041"></a-entity>
+    <a-entity mindar-image-target="targetIndex: 41" data-cita="042"></a-entity>
+    <a-entity mindar-image-target="targetIndex: 42" data-cita="043"></a-entity>
+    <a-entity mindar-image-target="targetIndex: 43" data-cita="044"></a-entity>
+    <a-entity mindar-image-target="targetIndex: 44" data-cita="045"></a-entity>
+    <a-entity mindar-image-target="targetIndex: 45" data-cita="046"></a-entity>
+    <a-entity mindar-image-target="targetIndex: 46" data-cita="047"></a-entity>
+    <a-entity mindar-image-target="targetIndex: 47" data-cita="048"></a-entity>
+    <a-entity mindar-image-target="targetIndex: 48" data-cita="049"></a-entity>
+    <a-entity mindar-image-target="targetIndex: 49" data-cita="050"></a-entity>
 
-    <a-entity
-      mindar-image-target="targetIndex: 5"
-      data-cita="006">
-    </a-entity>
+    <a-entity mindar-image-target="targetIndex: 50" data-cita="051"></a-entity>
+    <a-entity mindar-image-target="targetIndex: 51" data-cita="052"></a-entity>
+    <a-entity mindar-image-target="targetIndex: 52" data-cita="053"></a-entity>
+    <a-entity mindar-image-target="targetIndex: 53" data-cita="054"></a-entity>
+    <a-entity mindar-image-target="targetIndex: 54" data-cita="055"></a-entity>
+    <a-entity mindar-image-target="targetIndex: 55" data-cita="056"></a-entity>
+    <a-entity mindar-image-target="targetIndex: 56" data-cita="057"></a-entity>
+    <a-entity mindar-image-target="targetIndex: 57" data-cita="058"></a-entity>
+    <a-entity mindar-image-target="targetIndex: 58" data-cita="059"></a-entity>
+    <a-entity mindar-image-target="targetIndex: 59" data-cita="060"></a-entity>
 
-    <a-entity
-      mindar-image-target="targetIndex: 6"
-      data-cita="007">
-    </a-entity>
+    <a-entity mindar-image-target="targetIndex: 60" data-cita="061"></a-entity>
+    <a-entity mindar-image-target="targetIndex: 61" data-cita="062"></a-entity>
+    <a-entity mindar-image-target="targetIndex: 62" data-cita="063"></a-entity>
+    <a-entity mindar-image-target="targetIndex: 63" data-cita="064"></a-entity>
+    <a-entity mindar-image-target="targetIndex: 64" data-cita="065"></a-entity>
+    <a-entity mindar-image-target="targetIndex: 65" data-cita="066"></a-entity>
+    <a-entity mindar-image-target="targetIndex: 66" data-cita="067"></a-entity>
+    <a-entity mindar-image-target="targetIndex: 67" data-cita="068"></a-entity>
+    <a-entity mindar-image-target="targetIndex: 68" data-cita="069"></a-entity>
+    <a-entity mindar-image-target="targetIndex: 69" data-cita="070"></a-entity>
 
-    <a-entity
-      mindar-image-target="targetIndex: 7"
-      data-cita="008">
-    </a-entity>
+    <a-entity mindar-image-target="targetIndex: 70" data-cita="071"></a-entity>
+    <a-entity mindar-image-target="targetIndex: 71" data-cita="072"></a-entity>
+    <a-entity mindar-image-target="targetIndex: 72" data-cita="073"></a-entity>
+    <a-entity mindar-image-target="targetIndex: 73" data-cita="074"></a-entity>
+    <a-entity mindar-image-target="targetIndex: 74" data-cita="075"></a-entity>
+    <a-entity mindar-image-target="targetIndex: 75" data-cita="076"></a-entity>
+    <a-entity mindar-image-target="targetIndex: 76" data-cita="077"></a-entity>
+    <a-entity mindar-image-target="targetIndex: 77" data-cita="078"></a-entity>
+    <a-entity mindar-image-target="targetIndex: 78" data-cita="079"></a-entity>
+    <a-entity mindar-image-target="targetIndex: 79" data-cita="080"></a-entity>
 
-    <a-entity
-      mindar-image-target="targetIndex: 8"
-      data-cita="009">
-    </a-entity>
+    <a-entity mindar-image-target="targetIndex: 80" data-cita="081"></a-entity>
+    <a-entity mindar-image-target="targetIndex: 81" data-cita="082"></a-entity>
+    <a-entity mindar-image-target="targetIndex: 83" data-cita="084"></a-entity>
+    <a-entity mindar-image-target="targetIndex: 82" data-cita="083"></a-entity>
+    <a-entity mindar-image-target="targetIndex: 84" data-cita="085"></a-entity>
+    <a-entity mindar-image-target="targetIndex: 85" data-cita="086"></a-entity>
+    <a-entity mindar-image-target="targetIndex: 86" data-cita="087"></a-entity>
+    <a-entity mindar-image-target="targetIndex: 87" data-cita="088"></a-entity>
+    <a-entity mindar-image-target="targetIndex: 88" data-cita="089"></a-entity>
+    <a-entity mindar-image-target="targetIndex: 89" data-cita="090"></a-entity>
 
-    <a-entity
-      mindar-image-target="targetIndex: 9"
-      data-cita="010">
-    </a-entity>
-
-    <a-entity
-      mindar-image-target="targetIndex: 10"
-      data-cita="011">
-    </a-entity>
-
-    <a-entity
-      mindar-image-target="targetIndex: 11"
-      data-cita="012">
-    </a-entity>
-
-    <a-entity
-      mindar-image-target="targetIndex: 12"
-      data-cita="013">
-    </a-entity>
-
-    <a-entity
-      mindar-image-target="targetIndex: 13"
-      data-cita="014">
-    </a-entity>
-
-    <a-entity
-      mindar-image-target="targetIndex: 14"
-      data-cita="015">
-    </a-entity>
-
-    <a-entity
-      mindar-image-target="targetIndex: 15"
-      data-cita="016">
-    </a-entity>
-
-    <a-entity
-      mindar-image-target="targetIndex: 16"
-      data-cita="017">
-    </a-entity>
-
-    <a-entity
-      mindar-image-target="targetIndex: 17"
-      data-cita="018">
-    </a-entity>
-
-    <a-entity
-      mindar-image-target="targetIndex: 18"
-      data-cita="019">
-    </a-entity>
-
-    <a-entity
-      mindar-image-target="targetIndex: 19"
-      data-cita="020">
-    </a-entity>
+    <a-entity mindar-image-target="targetIndex: 90" data-cita="091"></a-entity>
+    <a-entity mindar-image-target="targetIndex: 91" data-cita="092"></a-entity>
+    <a-entity mindar-image-target="targetIndex: 92" data-cita="093"></a-entity>
+    <a-entity mindar-image-target="targetIndex: 93" data-cita="094"></a-entity>
+    <a-entity mindar-image-target="targetIndex: 94" data-cita="095"></a-entity>
+    <a-entity mindar-image-target="targetIndex: 95" data-cita="096"></a-entity>
+    <a-entity mindar-image-target="targetIndex: 96" data-cita="097"></a-entity>
+    <a-entity mindar-image-target="targetIndex: 97" data-cita="098"></a-entity>
+    <a-entity mindar-image-target="targetIndex: 98" data-cita="099"></a-entity>
+    <a-entity mindar-image-target="targetIndex: 99" data-cita="100"></a-entity>
 
   </a-scene>
 
 
   <script>
 
+    const inicio = document.getElementById("inicio");
+    const btnComenzar = document.getElementById("btn-comenzar");
+
     const video = document.getElementById("video-fullscreen");
-    const soundButton = document.getElementById("btn-sound");
+    const btnSonido = document.getElementById("btn-sonido");
 
-    let currentCita = null;
+    const scene = document.querySelector("a-scene");
+
+    let citaActual = null;
+    let targetsVisibles = new Set();
 
 
-    /*
-     * Convierte:
-     *
-     * 001 → Cita
+    /* =========================================
+       COMENZAR EXPERIENCIA
+       ========================================= */
+
+    btnComenzar.addEventListener("click", async () => {
+
+      inicio.style.display = "none";
+
+      const mindarSystem =
+        scene.systems["mindar-image-system"];
+
+      try {
+
+        await mindarSystem.start();
+
+      } catch (error) {
+
+        console.error(
+          "No se pudo iniciar la cámara:",
+          error
+        );
+
+      }
+
+    });
+
+
+    /* =========================================
+       OBTENER VIDEO
+       ========================================= */
+
+    function obtenerVideo(cita) {
+
+      return "./videos/Cita" + cita + ".mp4";
+
+    }
+
+
+    /* =========================================
+       REPRODUCIR CITA
+       ========================================= */
+
+    async function reproducirCita(cita) {
+
+      /*
+       * Si ya estamos reproduciendo
+       * esa misma cita, no hacemos nada.
+       */
+
+      if (citaActual === cita) {
+        return;
+      }
+
+
+      citaActual = cita;
+
+      console.log(
+        "Cita detectada:",
+        cita
+      );
+
+
+      video.pause();
+
+
+      video.src = obtenerVideo(cita);
+
+
+      video.load();
+
+
+      video.style.display = "block";
+
+
+      /*
+       * Primero intentamos reproducir
+       * sin sonido.
+       */
+
+      video.muted = true;
+
+
+      try {
+
+        await video.play();
+
+        btnSonido.style.display = "block";
+
+      } catch (error) {
+
+        console.error(
+          "Error reproduciendo video:",
+          error
+        );
+
+      }
+
+    }
+
+
+    /* =========================================
+       OCULTAR VIDEO
+       ========================================= */
+
+    function ocultarVideo() {
+
+      /*
+       * Si todavía estamos viendo otra
+       * imagen, no ocultamos el video.
+       */
+
+      if (targetsVisibles.size > 0) {
+        return;
+      }
+
+
+      video.pause();
+
+      video.removeAttribute("src");
+
+      video.load();
+
+      video.style.display = "none";
+
+      btnSonido.style.display = "none";
+
+      citaActual = null;
+
+    }
+
+
+    /* =========================================
+       ACTIVAR SONIDO
+       ========================================= */
+
+    btnSonido.addEventListener("click", async () => {
+
+      video.muted = false;
+
+
+      try {
+
+        await video.play();
+
+        btnSonido.style.display = "none";
+
+      } catch (error) {
+
+        console.error(error);
+
+      }
+
+    });
+
+
+    /* =========================================
+       TODOS LOS TARGETS
+       ========================================= */
+
+    const targets =
+      document.querySelectorAll(
+        "[mindar-image-target]"
+      );
+
+
+    targets.forEach(target => {
+
+
+      /* ===============================
+         IMAGEN ENCONTRADA
+         =============================== */
+
+      target.addEventListener(
+        "targetFound",
+        () => {
+
+          const cita =
+            target.getAttribute("data-cita");
+
+
+          targetsVisibles.add(cita);
+
+
+          reproducirCita(cita);
+
+        }
+      );
+
+
+      /* ===============================
+         IMAGEN PERDIDA
+         =============================== */
+
+      target.addEventListener(
+        "targetLost",
+        () => {
+
+          const cita =
+            target.getAttribute("data-cita");
+
+
+          targetsVisibles.delete(cita);
+
+
+          /*
+           * Esperamos un instante por si
+           * inmediatamente aparece otra cita.
+           */
+
+          setTimeout(() => {
+
+            ocultarVideo();
+
+          }, 150);
+
+        }
+      );
+
+    });
+
+
+  </script>
+
+</body>
+</html>
