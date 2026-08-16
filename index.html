@@ -2,7 +2,6 @@
 <html lang="es">
 
 <head>
-
   <meta charset="UTF-8">
 
   <meta
@@ -12,25 +11,14 @@
 
   <title>100 Citas Juntos</title>
 
-
-  <!-- A-FRAME -->
   <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
 
-
-  <!-- MINDAR -->
   <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.2/dist/mindar-image-aframe.prod.js"></script>
-
 
   <style>
 
-    * {
-      box-sizing: border-box;
-    }
-
-
     html,
     body {
-
       margin: 0;
       padding: 0;
 
@@ -42,25 +30,17 @@
       background: #303030;
 
       font-family: Arial, sans-serif;
-
     }
 
 
-    /* =====================================
-       PANTALLA DE INICIO
-       ===================================== */
+    /* PANTALLA INICIAL */
 
     #inicio {
-
       position: fixed;
 
-      top: 0;
-      left: 0;
+      inset: 0;
 
-      width: 100vw;
-      height: 100vh;
-
-      z-index: 5000;
+      z-index: 9999;
 
       display: flex;
 
@@ -75,24 +55,20 @@
       color: white;
 
       text-align: center;
-
     }
 
 
     #inicio h1 {
-
       margin: 0 20px 60px;
 
       font-size: 40px;
 
       font-weight: 600;
-
     }
 
 
     #btn-comenzar {
-
-      padding: 20px 55px;
+      padding: 20px 45px;
 
       border: none;
 
@@ -102,32 +78,45 @@
 
       color: white;
 
-      font-size: 25px;
+      font-size: 24px;
 
       font-weight: bold;
-
-      cursor: pointer;
-
     }
 
 
-    #btn-comenzar:active {
+    /* MENSAJE DE ERROR */
 
-      transform: scale(0.97);
-
-    }
-
-
-    /* =====================================
-       VIDEO A PANTALLA COMPLETA
-       ===================================== */
-
-    #video-fullscreen {
-
+    #error {
       position: fixed;
 
-      top: 0;
-      left: 0;
+      inset: 0;
+
+      z-index: 10000;
+
+      display: none;
+
+      justify-content: center;
+
+      align-items: center;
+
+      padding: 30px;
+
+      background: #303030;
+
+      color: white;
+
+      text-align: center;
+
+      font-size: 18px;
+    }
+
+
+    /* VIDEO */
+
+    #video-fullscreen {
+      position: fixed;
+
+      inset: 0;
 
       width: 100vw;
       height: 100vh;
@@ -136,21 +125,17 @@
 
       background: black;
 
-      z-index: 3000;
+      z-index: 5000;
 
       display: none;
 
       pointer-events: none;
-
     }
 
 
-    /* =====================================
-       BOTÓN DE SONIDO
-       ===================================== */
+    /* SONIDO */
 
     #btn-sonido {
-
       position: fixed;
 
       top: 20px;
@@ -158,7 +143,7 @@
 
       transform: translateX(-50%);
 
-      z-index: 4000;
+      z-index: 6000;
 
       display: none;
 
@@ -168,33 +153,13 @@
 
       border-radius: 10px;
 
-      background: rgba(0, 0, 0, 0.85);
+      background: rgba(0,0,0,.85);
 
       color: white;
 
       font-size: 16px;
 
       font-weight: bold;
-
-    }
-
-
-    /* =====================================
-       A-FRAME
-       ===================================== */
-
-    a-scene {
-
-      position: fixed;
-
-      top: 0;
-      left: 0;
-
-      width: 100vw;
-      height: 100vh;
-
-      z-index: 1;
-
     }
 
   </style>
@@ -205,56 +170,54 @@
 <body>
 
 
-  <!-- =====================================
-       PANTALLA INICIAL
-       ===================================== -->
+  <!-- PANTALLA DE INICIO -->
 
   <div id="inicio">
 
-    <h1>
-      100 Citas Juntos
-    </h1>
-
+    <h1>100 Citas Juntos</h1>
 
     <button id="btn-comenzar">
-
       Comenzar Experiencia
-
     </button>
 
   </div>
 
 
+  <!-- MENSAJE DE ERROR -->
 
-  <!-- =====================================
-       VIDEO
-       ===================================== -->
+  <div id="error">
+    <div>
+      <h2>No se pudo iniciar la cámara</h2>
+
+      <p id="texto-error"></p>
+
+      <p>
+        Verifica que Chrome tenga permiso para usar
+        la cámara.
+      </p>
+    </div>
+  </div>
+
+
+  <!-- VIDEO -->
 
   <video
     id="video-fullscreen"
     playsinline
     webkit-playsinline
     muted
-    loop
-  ></video>
+    loop>
+  </video>
 
 
-
-  <!-- =====================================
-       BOTÓN SONIDO
-       ===================================== -->
+  <!-- SONIDO -->
 
   <button id="btn-sonido">
-
     🔊 Activar sonido
-
   </button>
 
 
-
-  <!-- =====================================
-       MINDAR
-       ===================================== -->
+  <!-- MINDAR -->
 
   <a-scene
 
@@ -271,34 +234,24 @@
     renderer="
       colorManagement: true;
       physicallyCorrectLights;
-      antialias: true;
     "
 
     vr-mode-ui="enabled: false"
 
-    device-orientation-permission-ui="enabled: false"
-  >
+    device-orientation-permission-ui="enabled: false">
 
-
-    <!-- CÁMARA -->
 
     <a-camera
       position="0 0 0"
-      look-controls="enabled: false"
-    ></a-camera>
+      look-controls="enabled: false">
+    </a-camera>
 
 
+    <!--
+      POR AHORA SOLO CITA001
 
-    <!-- ==================================
-         TARGETS
-
-         0  = Cita001
-         1  = Cita002
-         2  = Cita003
-         ...
-         99 = Cita100
-         ================================== -->
-
+      target 0 = Cita001
+    -->
 
     <a-entity
       mindar-image-target="targetIndex: 0"
@@ -306,17 +259,320 @@
     </a-entity>
 
 
-    <a-entity
-      mindar-image-target="targetIndex: 1"
-      data-cita="002">
-    </a-entity>
+  </a-scene>
 
 
-    <a-entity
-      mindar-image-target="targetIndex: 2"
-      data-cita="003">
-    </a-entity>
+  <script>
+
+    const inicio =
+      document.getElementById("inicio");
+
+    const boton =
+      document.getElementById("btn-comenzar");
+
+    const errorBox =
+      document.getElementById("error");
+
+    const textoError =
+      document.getElementById("texto-error");
+
+    const video =
+      document.getElementById("video-fullscreen");
+
+    const botonSonido =
+      document.getElementById("btn-sonido");
+
+    const escena =
+      document.querySelector("a-scene");
 
 
-    <a-entity
-      mindar-image-target="targetIndex: 3"
+    let citaActual = null;
+
+    let experienciaIniciada = false;
+
+    let targetEncontrado = false;
+
+
+
+    /* =====================================
+       COMENZAR
+       ===================================== */
+
+    boton.addEventListener(
+      "click",
+      async function () {
+
+        if (experienciaIniciada) {
+          return;
+        }
+
+        experienciaIniciada = true;
+
+
+        console.log("Botón pulsado");
+
+
+        /*
+         * Esperamos a que A-Frame termine
+         * de cargar.
+         */
+
+        if (!escena.hasLoaded) {
+
+          await new Promise(function(resolve) {
+
+            escena.addEventListener(
+              "loaded",
+              resolve,
+              { once: true }
+            );
+
+          });
+
+        }
+
+
+        console.log("A-Frame cargado");
+
+
+        try {
+
+          const sistema =
+            escena.systems["mindar-image-system"];
+
+
+          if (!sistema) {
+
+            throw new Error(
+              "MindAR no se pudo cargar."
+            );
+
+          }
+
+
+          console.log(
+            "Iniciando cámara..."
+          );
+
+
+          /*
+           * AHORA SÍ iniciamos MindAR
+           * desde el botón.
+           */
+
+          await sistema.start();
+
+
+          console.log(
+            "CÁMARA INICIADA"
+          );
+
+
+          /*
+           * Quitamos la pantalla inicial
+           * SOLO después de iniciar la cámara.
+           */
+
+          inicio.style.display = "none";
+
+
+        } catch (e) {
+
+          console.error(e);
+
+
+          textoError.textContent =
+            e.message ||
+            "Error desconocido";
+
+
+          errorBox.style.display =
+            "flex";
+
+        }
+
+      }
+    );
+
+
+
+    /* =====================================
+       CITA ENCONTRADA
+       ===================================== */
+
+    const target =
+      document.querySelector(
+        '[mindar-image-target]'
+      );
+
+
+    target.addEventListener(
+      "targetFound",
+      function () {
+
+        console.log(
+          "CITA001 ENCONTRADA"
+        );
+
+
+        targetEncontrado = true;
+
+
+        reproducirVideo("001");
+
+      }
+    );
+
+
+
+    /* =====================================
+       CITA PERDIDA
+       ===================================== */
+
+    target.addEventListener(
+      "targetLost",
+      function () {
+
+        console.log(
+          "CITA001 PERDIDA"
+        );
+
+
+        targetEncontrado = false;
+
+
+        detenerVideo();
+
+      }
+    );
+
+
+
+    /* =====================================
+       REPRODUCIR VIDEO
+       ===================================== */
+
+    async function reproducirVideo(cita) {
+
+
+      if (citaActual === cita) {
+        return;
+      }
+
+
+      citaActual = cita;
+
+
+      video.pause();
+
+
+      /*
+       * IMPORTANTE:
+       *
+       * V mayúscula:
+       *
+       * Videos/Cita001.mp4
+       */
+
+      video.src =
+        "./Videos/Cita" +
+        cita +
+        ".mp4";
+
+
+      video.load();
+
+
+      video.style.display =
+        "block";
+
+
+      video.muted = true;
+
+
+      try {
+
+        await video.play();
+
+
+        botonSonido.style.display =
+          "block";
+
+
+      } catch (e) {
+
+        console.error(
+          "Error reproduciendo video:",
+          e
+        );
+
+      }
+
+    }
+
+
+
+    /* =====================================
+       DETENER VIDEO
+       ===================================== */
+
+    function detenerVideo() {
+
+
+      video.pause();
+
+
+      video.removeAttribute(
+        "src"
+      );
+
+
+      video.load();
+
+
+      video.style.display =
+        "none";
+
+
+      botonSonido.style.display =
+        "none";
+
+
+      citaActual = null;
+
+    }
+
+
+
+    /* =====================================
+       SONIDO
+       ===================================== */
+
+    botonSonido.addEventListener(
+      "click",
+      async function () {
+
+        video.muted = false;
+
+
+        try {
+
+          await video.play();
+
+          botonSonido.style.display =
+            "none";
+
+        } catch (e) {
+
+          console.error(e);
+
+        }
+
+      }
+    );
+
+  </script>
+
+</body>
+
+</html>
