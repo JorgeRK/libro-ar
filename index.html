@@ -2,540 +2,162 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-
-  <meta
-    name="viewport"
-    content="width=device-width,
-             initial-scale=1.0,
-             maximum-scale=1.0,
-             user-scalable=no,
-             viewport-fit=cover"
-  >
-
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>100 Citas Juntos</title>
-
-  <!-- A-Frame -->
   <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
-
-  <!-- MindAR -->
   <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.2/dist/mindar-image-aframe.prod.js"></script>
-
   <style>
-
     * {
       box-sizing: border-box;
     }
-
-    html,
-    body {
+    html, body {
       margin: 0;
       padding: 0;
       width: 100%;
       height: 100%;
       overflow: hidden;
       background: #000;
-      font-family:
-        -apple-system,
-        BlinkMacSystemFont,
-        "Segoe UI",
-        Roboto,
-        Arial,
-        sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
     }
-
-    /* =====================================================
-       PANTALLA INICIAL
-       ===================================================== */
-
     #inicio {
       position: fixed;
       inset: 0;
-
       width: 100vw;
       height: 100vh;
-
       background: #111827;
-
       z-index: 10000;
-
       display: flex;
       flex-direction: column;
-
       justify-content: center;
       align-items: center;
-
       gap: 30px;
     }
-
     #inicio h1 {
       margin: 0;
-
       color: white;
-
-      font-size: clamp(30px, 8vw, 60px);
-
+      font-size: clamp(28px, 7vw, 50px);
       font-weight: 700;
-
       text-align: center;
     }
-
     #btn-comenzar {
       border: 0;
-
-      padding: 18px 42px;
-
+      padding: 16px 36px;
       background: #2563eb;
-
       color: white;
-
-      font-size: 20px;
-
+      font-size: 18px;
       font-weight: 700;
-
-      border-radius: 14px;
-
-      box-shadow:
-        0 8px 25px rgba(0, 0, 0, 0.35);
-
+      border-radius: 12px;
       cursor: pointer;
-
-      -webkit-tap-highlight-color: transparent;
     }
-
     #btn-comenzar:active {
       transform: scale(0.97);
     }
-
-
-    /* =====================================================
-       CÁMARA
-       ===================================================== */
-
-    a-scene {
-      position: fixed !important;
-
-      inset: 0 !important;
-
-      width: 100vw !important;
-      height: 100vh !important;
-
-      z-index: 1 !important;
-    }
-
-
-    /* =====================================================
-       VIDEO A PANTALLA COMPLETA
-       ===================================================== */
-
-    #video-pantalla {
+    #video-container {
       position: fixed;
-
       inset: 0;
-
       width: 100vw;
       height: 100vh;
-
       z-index: 5000;
-
       display: none;
-
       background: #000;
-
+    }
+    #video-pantalla {
+      width: 100%;
+      height: 100%;
       object-fit: cover;
-
-      object-position: center center;
-
-      border: 0;
-
-      margin: 0;
-      padding: 0;
     }
-
-
-    /* =====================================================
-       INDICADOR
-       ===================================================== */
-
-    #indicador {
-      position: fixed;
-
-      left: 50%;
-
-      bottom: 25px;
-
-      transform: translateX(-50%);
-
-      z-index: 6000;
-
-      display: none;
-
-      color: white;
-
-      background: rgba(0,0,0,0.65);
-
-      padding: 9px 18px;
-
-      border-radius: 25px;
-
-      font-size: 14px;
-
-      font-weight: 600;
-
-      backdrop-filter: blur(5px);
+    #btn-cerrar {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      z-index: 5001;
+      background: rgba(0, 0, 0, 0.7);
+      color: #fff;
+      border: 1px solid #fff;
+      border-radius: 50%;
+      width: 44px;
+      height: 44px;
+      font-size: 22px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
-
   </style>
 </head>
-
-
 <body>
 
-
-  <!-- =====================================================
-       PANTALLA DE INICIO
-       ===================================================== -->
-
   <div id="inicio">
-
     <h1>100 Citas Juntos</h1>
-
-    <button id="btn-comenzar">
-      Comenzar Experiencia
-    </button>
-
+    <button id="btn-comenzar">Comenzar Experiencia</button>
   </div>
 
-
-  <!-- =====================================================
-       VIDEO ÚNICO
-       
-       IMPORTANTE:
-       NO está dentro del target AR.
-       Por eso NO tiembla.
-       ===================================================== -->
-
-  <video
-    id="video-pantalla"
-
-    playsinline
-    webkit-playsinline
-
-    preload="auto"
-
-    controls="false"
-
-    crossorigin="anonymous"
-  ></video>
-
-
-  <div id="indicador"></div>
-
-
-  <!-- =====================================================
-       MINDAR
-       ===================================================== -->
+  <div id="video-container">
+    <button id="btn-cerrar">&times;</button>
+    <video id="video-pantalla" playsinline webkit-playsinline loop preload="auto"></video>
+  </div>
 
   <a-scene
-
-    mindar-image="
-      imageTargetSrc: ./targets.mind;
-      autoStart: false;
-      uiScanning: yes;
-      uiLoading: no;
-      uiError: no;
-    "
-
+    mindar-image="imageTargetSrc: ./targets.mind; autoStart: false; uiScanning: yes;"
     color-space="sRGB"
-
-    renderer="
-      colorManagement: true;
-      physicallyCorrectLights: true;
-    "
-
+    renderer="colorManagement: true; physicallyCorrectLights: true;"
     vr-mode-ui="enabled: false"
+    device-orientation-permission-ui="enabled: false">
 
-    device-orientation-permission-ui="enabled: false"
+    <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
 
-  >
+    <!-- Targets declarados como disparadores limpios -->
+    <a-entity id="target0" mindar-image-target="targetIndex: 0"></a-entity>
+    <a-entity id="target1" mindar-image-target="targetIndex: 1"></a-entity>
+    <a-entity id="target2" mindar-image-target="targetIndex: 2"></a-entity>
+  </a-scene>
 
-    <a-camera
-      position="0 0 0"
-      look-controls="enabled: false"
-    ></a-camera>
+  <script>
+    const inicio = document.getElementById('inicio');
+    const btnComenzar = document.getElementById('btn-comenzar');
+    const container = document.getElementById('video-container');
+    const video = document.getElementById('video-pantalla');
+    const btnCerrar = document.getElementById('btn-cerrar');
+    const sceneEl = document.querySelector('a-scene');
 
-    <!--
+    // Mapeo directo: índice del target -> archivo de video
+    const listaVideos = {
+      0: './Videos/Cita001.mp4',
+      1: './Videos/Cita002.mp4',
+      2: './Videos/Cita003.mp4'
+    };
 
-      LOS TARGETS ESTÁN VACÍOS.
+    btnComenzar.addEventListener('click', async () => {
+      inicio.style.display = 'none';
+      
+      // Desbloqueo nativo de audio
+      video.muted = false;
+      
+      // Iniciar el motor AR
+      const mindarSystem = sceneEl.systems['mindar-image-system'];
+      await mindarSystem.start();
+    });
 
-      Esto es intencional.
+    function reproducir(index) {
+      if (listaVideos[index] && container.style.display !== 'block') {
+        video.src = listaVideos[index];
+        video.muted = false;
+        container.style.display = 'block';
+        video.play().catch(e => console.log('Error play:', e));
+      }
+    }
 
-      El video NO se coloca encima de ellos.
-      Solo usamos MindAR para saber cuál imagen
-      está mirando la cámara.
+    // Eventos de detección
+    document.getElementById('target0').addEventListener('targetFound', () => reproducir(0));
+    document.getElementById('target1').addEventListener('targetFound', () => reproducir(1));
+    document.getElementById('target2').addEventListener('targetFound', () => reproducir(2));
 
-    -->
-
-    <a-entity
-      id="target0"
-      mindar-image-target="targetIndex: 0"
-    ></a-entity>
-
-    <a-entity
-      id="target1"
-      mindar-image-target="targetIndex: 1"
-    ></a-entity>
-
-    <a-entity
-      id="target2"
-      mindar-image-target="targetIndex: 2"
-    ></a-entity>
-
-    <a-entity
-      id="target3"
-      mindar-image-target="targetIndex: 3"
-    ></a-entity>
-
-    <a-entity
-      id="target4"
-      mindar-image-target="targetIndex: 4"
-    ></a-entity>
-
-    <a-entity
-      id="target5"
-      mindar-image-target="targetIndex: 5"
-    ></a-entity>
-
-    <a-entity
-      id="target6"
-      mindar-image-target="targetIndex: 6"
-    ></a-entity>
-
-    <a-entity
-      id="target7"
-      mindar-image-target="targetIndex: 7"
-    ></a-entity>
-
-    <a-entity
-      id="target8"
-      mindar-image-target="targetIndex: 8"
-    ></a-entity>
-
-    <a-entity
-      id="target9"
-      mindar-image-target="targetIndex: 9"
-    ></a-entity>
-
-    <a-entity
-      id="target10"
-      mindar-image-target="targetIndex: 10"
-    ></a-entity>
-
-    <a-entity
-      id="target11"
-      mindar-image-target="targetIndex: 11"
-    ></a-entity>
-
-    <a-entity
-      id="target12"
-      mindar-image-target="targetIndex: 12"
-    ></a-entity>
-
-    <a-entity
-      id="target13"
-      mindar-image-target="targetIndex: 13"
-    ></a-entity>
-
-    <a-entity
-      id="target14"
-      mindar-image-target="targetIndex: 14"
-    ></a-entity>
-
-    <a-entity
-      id="target15"
-      mindar-image-target="targetIndex: 15"
-    ></a-entity>
-
-    <a-entity
-      id="target16"
-      mindar-image-target="targetIndex: 16"
-    ></a-entity>
-
-    <a-entity
-      id="target17"
-      mindar-image-target="targetIndex: 17"
-    ></a-entity>
-
-    <a-entity
-      id="target18"
-      mindar-image-target="targetIndex: 18"
-    ></a-entity>
-
-    <a-entity
-      id="target19"
-      mindar-image-target="targetIndex: 19"
-    ></a-entity>
-
-    <a-entity
-      id="target20"
-      mindar-image-target="targetIndex: 20"
-    ></a-entity>
-
-    <a-entity
-      id="target21"
-      mindar-image-target="targetIndex: 21"
-    ></a-entity>
-
-    <a-entity
-      id="target22"
-      mindar-image-target="targetIndex: 22"
-    ></a-entity>
-
-    <a-entity
-      id="target23"
-      mindar-image-target="targetIndex: 23"
-    ></a-entity>
-
-    <a-entity
-      id="target24"
-      mindar-image-target="targetIndex: 24"
-    ></a-entity>
-
-    <a-entity
-      id="target25"
-      mindar-image-target="targetIndex: 25"
-    ></a-entity>
-
-    <a-entity
-      id="target26"
-      mindar-image-target="targetIndex: 26"
-    ></a-entity>
-
-    <a-entity
-      id="target27"
-      mindar-image-target="targetIndex: 27"
-    ></a-entity>
-
-    <a-entity
-      id="target28"
-      mindar-image-target="targetIndex: 28"
-    ></a-entity>
-
-    <a-entity
-      id="target29"
-      mindar-image-target="targetIndex: 29"
-    ></a-entity>
-
-    <a-entity
-      id="target30"
-      mindar-image-target="targetIndex: 30"
-    ></a-entity>
-
-    <a-entity
-      id="target31"
-      mindar-image-target="targetIndex: 31"
-    ></a-entity>
-
-    <a-entity
-      id="target32"
-      mindar-image-target="targetIndex: 32"
-    ></a-entity>
-
-    <a-entity
-      id="target33"
-      mindar-image-target="targetIndex: 33"
-    ></a-entity>
-
-    <a-entity
-      id="target34"
-      mindar-image-target="targetIndex: 34"
-    ></a-entity>
-
-    <a-entity
-      id="target35"
-      mindar-image-target="targetIndex: 35"
-    ></a-entity>
-
-    <a-entity
-      id="target36"
-      mindar-image-target="targetIndex: 36"
-    ></a-entity>
-
-    <a-entity
-      id="target37"
-      mindar-image-target="targetIndex: 37"
-    ></a-entity>
-
-    <a-entity
-      id="target38"
-      mindar-image-target="targetIndex: 38"
-    ></a-entity>
-
-    <a-entity
-      id="target39"
-      mindar-image-target="targetIndex: 39"
-    ></a-entity>
-
-    <a-entity
-      id="target40"
-      mindar-image-target="targetIndex: 40"
-    ></a-entity>
-
-    <a-entity
-      id="target41"
-      mindar-image-target="targetIndex: 41"
-    ></a-entity>
-
-    <a-entity
-      id="target42"
-      mindar-image-target="targetIndex: 42"
-    ></a-entity>
-
-    <a-entity
-      id="target43"
-      mindar-image-target="targetIndex: 43"
-    ></a-entity>
-
-    <a-entity
-      id="target44"
-      mindar-image-target="targetIndex: 44"
-    ></a-entity>
-
-    <a-entity
-      id="target45"
-      mindar-image-target="targetIndex: 45"
-    ></a-entity>
-
-    <a-entity
-      id="target46"
-      mindar-image-target="targetIndex: 46"
-    ></a-entity>
-
-    <a-entity
-      id="target47"
-      mindar-image-target="targetIndex: 47"
-    ></a-entity>
-
-    <a-entity
-      id="target48"
-      mindar-image-target="targetIndex: 48"
-    ></a-entity>
-
-    <a-entity
-      id="target49"
-      mindar-image-target="targetIndex: 49"
-    ></a-entity>
-
-    <a-entity
-      id="target50"
-      mindar-image-target="targetIndex: 50"
-    ></a-entity>
-
-    <a-entity
-      id="target51"
-      mindar-image-target="targetIndex: 51"
-    ></a-entity>
-
-    <a-entity
-      id="target52"
-      mindar-image-target="targetIndex: 52"
-    ></a-entity>
+    // Cerrar video y volver al escaneo
+    btnCerrar.addEventListener('click', () => {
+      video.pause();
+      video.src = '';
+      container.style.display = 'none';
+    });
+  </script>
+</body>
+</html>
