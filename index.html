@@ -1,138 +1,235 @@
 <!DOCTYPE html>
 <html lang="es">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <title>100 Citas Juntos</title>
-    <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.2/dist/mindar-image-aframe.prod.js"></script>
-    <style>
-      body {
-        margin: 0;
-        overflow: hidden;
-        background-color: #121212;
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      }
-      #overlay {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100vw;
-        height: 100vh;
-        background: #1e1e1e;
-        z-index: 999999;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        gap: 20px;
-      }
-      #overlay h1 {
-        color: #ffffff;
-        font-size: 24px;
-        margin: 0;
-        font-weight: 600;
-        letter-spacing: 0.5px;
-      }
-      #start-btn {
-        padding: 14px 32px;
-        font-size: 16px;
-        font-weight: 600;
-        background-color: #2563eb;
-        color: #ffffff;
-        border: none;
-        border-radius: 12px;
-        cursor: pointer;
-        box-shadow: 0 4px 14px rgba(37, 99, 235, 0.4);
-      }
-      #start-btn:active {
-        background-color: #1d4ed8;
-        transform: scale(0.98);
-      }
-    </style>
-  </head>
-  <body>
-    <div id="overlay">
-      <h1>100 Citas Juntos</h1>
-      <button id="start-btn">Comenzar Experiencia</button>
-    </div>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <a-scene 
-      mindar-image="imageTargetSrc: ./targets.mind; autoStart: false; uiScanning: yes; filterMinCF: 0.0001; filterBeta: 0.001;" 
-      color-space="sRGB" 
-      renderer="colorManagement: true, physicallyCorrectLights: true" 
-      vr-mode-ui="enabled: false" 
-      device-orientation-permission-ui="enabled: false">
+  <title>100 Citas</title>
 
-      <a-assets>
-        <video 
-          id="vid0" 
-          src="./Cita001Concierto.mp4" 
-          preload="metadata" 
-          loop 
-          crossorigin="anonymous"
-          playsinline 
-          webkit-playsinline>
-        </video>
-      </a-assets>
+  <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.2/dist/mindar-image-aframe.prod.js"></script>
 
-      <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+  <style>
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: black;
+    }
 
-      <a-entity id="target0" mindar-image-target="targetIndex: 0">
-        <a-plane 
-          id="video-screen0"
-          material="src: #vid0; opacity: 0; transparent: true" 
-          position="0 0 0" 
-          height="1" 
-          width="0.5625">
-        </a-plane>
-      </a-entity>
-    </a-scene>
+    /* Video a pantalla completa */
+    #video-fullscreen {
+      position: fixed;
+      inset: 0;
 
-    <script>
-      const overlay = document.getElementById('overlay');
-      const startBtn = document.getElementById('start-btn');
-      const video = document.getElementById('vid0');
-      const videoScreen = document.getElementById('video-screen0');
-      const target0 = document.getElementById('target0');
-      const sceneEl = document.querySelector('a-scene');
+      width: 100vw;
+      height: 100vh;
 
-      // Calcular proporción vertical real
-      video.addEventListener('loadedmetadata', () => {
-        if (video.videoHeight > 0) {
-          const ratio = video.videoWidth / video.videoHeight;
-          videoScreen.setAttribute('width', ratio);
-          videoScreen.setAttribute('height', 1);
-        }
-      });
+      object-fit: cover;
 
-      startBtn.addEventListener('click', async () => {
-        overlay.style.display = 'none';
+      z-index: 1000;
 
-        // Calentar textura de video y desbloquear audio
-        try {
-          video.muted = false;
-          await video.play();
-          video.pause();
-        } catch (err) {
-          console.warn('Audio policy bypass fallback:', err);
-        }
+      display: none;
 
-        // Iniciar reconocimiento de cámara
-        sceneEl.systems['mindar-image-system'].start();
-      });
+      background: black;
+    }
 
-      // Eventos de detección
-      target0.addEventListener('targetFound', () => {
-        videoScreen.setAttribute('material', 'opacity', 1);
-        video.muted = false;
-        video.play();
-      });
+    /* Botón de sonido */
+    #btn-sound {
+      position: fixed;
 
-      target0.addEventListener('targetLost', () => {
-        videoScreen.setAttribute('material', 'opacity', 0);
-        video.pause();
-      });
-    </script>
-  </body>
-</html>
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+
+      z-index: 2000;
+
+      padding: 14px 24px;
+
+      border: 2px solid white;
+      border-radius: 10px;
+
+      background: rgba(0, 0, 0, 0.85);
+      color: white;
+
+      font-family: Arial, sans-serif;
+      font-size: 16px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- VIDEO QUE OCUPARÁ TODA LA PANTALLA -->
+  <video
+    id="video-fullscreen"
+    playsinline
+    webkit-playsinline
+    muted
+    loop>
+  </video>
+
+
+  <!-- BOTÓN PARA ACTIVAR SONIDO -->
+  <button id="btn-sound">
+    🔊 Activar sonido
+  </button>
+
+
+  <!-- MINDAR -->
+  <a-scene
+    mindar-image="
+      imageTargetSrc: ./targets.mind;
+      autoStart: true;
+      uiScanning: yes;
+      uiLoading: yes;
+      uiError: yes;
+    "
+
+    color-space="sRGB"
+
+    renderer="
+      colorManagement: true;
+      physicallyCorrectLights;
+    "
+
+    vr-mode-ui="enabled: false"
+
+    device-orientation-permission-ui="enabled: false">
+
+    <a-camera
+      position="0 0 0"
+      look-controls="enabled: false">
+    </a-camera>
+
+
+    <!--
+      TARGET 0 = Cita001
+      TARGET 1 = Cita002
+      TARGET 2 = Cita003
+      ...
+      TARGET 99 = Cita100
+
+      Solo utilizamos estos targets para
+      detectar las imágenes.
+    -->
+
+    <a-entity
+      mindar-image-target="targetIndex: 0"
+      data-cita="001">
+    </a-entity>
+
+    <a-entity
+      mindar-image-target="targetIndex: 1"
+      data-cita="002">
+    </a-entity>
+
+    <a-entity
+      mindar-image-target="targetIndex: 2"
+      data-cita="003">
+    </a-entity>
+
+    <a-entity
+      mindar-image-target="targetIndex: 3"
+      data-cita="004">
+    </a-entity>
+
+    <a-entity
+      mindar-image-target="targetIndex: 4"
+      data-cita="005">
+    </a-entity>
+
+    <a-entity
+      mindar-image-target="targetIndex: 5"
+      data-cita="006">
+    </a-entity>
+
+    <a-entity
+      mindar-image-target="targetIndex: 6"
+      data-cita="007">
+    </a-entity>
+
+    <a-entity
+      mindar-image-target="targetIndex: 7"
+      data-cita="008">
+    </a-entity>
+
+    <a-entity
+      mindar-image-target="targetIndex: 8"
+      data-cita="009">
+    </a-entity>
+
+    <a-entity
+      mindar-image-target="targetIndex: 9"
+      data-cita="010">
+    </a-entity>
+
+    <a-entity
+      mindar-image-target="targetIndex: 10"
+      data-cita="011">
+    </a-entity>
+
+    <a-entity
+      mindar-image-target="targetIndex: 11"
+      data-cita="012">
+    </a-entity>
+
+    <a-entity
+      mindar-image-target="targetIndex: 12"
+      data-cita="013">
+    </a-entity>
+
+    <a-entity
+      mindar-image-target="targetIndex: 13"
+      data-cita="014">
+    </a-entity>
+
+    <a-entity
+      mindar-image-target="targetIndex: 14"
+      data-cita="015">
+    </a-entity>
+
+    <a-entity
+      mindar-image-target="targetIndex: 15"
+      data-cita="016">
+    </a-entity>
+
+    <a-entity
+      mindar-image-target="targetIndex: 16"
+      data-cita="017">
+    </a-entity>
+
+    <a-entity
+      mindar-image-target="targetIndex: 17"
+      data-cita="018">
+    </a-entity>
+
+    <a-entity
+      mindar-image-target="targetIndex: 18"
+      data-cita="019">
+    </a-entity>
+
+    <a-entity
+      mindar-image-target="targetIndex: 19"
+      data-cita="020">
+    </a-entity>
+
+  </a-scene>
+
+
+  <script>
+
+    const video = document.getElementById("video-fullscreen");
+    const soundButton = document.getElementById("btn-sound");
+
+    let currentCita = null;
+
+
+    /*
+     * Convierte:
+     *
+     * 001 → Cita
