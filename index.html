@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
+
   <meta charset="utf-8">
 
   <meta
@@ -19,28 +21,40 @@
   <!-- MindAR -->
   <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.2/dist/mindar-image-aframe.prod.js"></script>
 
+
   <style>
 
     html,
     body {
+
       margin: 0;
       padding: 0;
+
       width: 100%;
       height: 100%;
+
       overflow: hidden;
+
       background: #000;
+
       font-family:
         -apple-system,
         BlinkMacSystemFont,
         "Segoe UI",
         Roboto,
         sans-serif;
+
     }
 
-    /* Pantalla inicial */
+
+    /* =========================
+       PANTALLA INICIAL
+       ========================= */
 
     #inicio {
+
       position: fixed;
+
       inset: 0;
 
       width: 100vw;
@@ -49,44 +63,61 @@
       background: #111827;
 
       display: flex;
+
       flex-direction: column;
 
       justify-content: center;
+
       align-items: center;
 
       z-index: 999999;
+
     }
 
+
     #titulo {
+
       color: white;
 
       font-size: 30px;
+
       font-weight: bold;
 
       margin-bottom: 30px;
 
       text-align: center;
+
     }
 
+
     #comenzar {
+
       padding: 18px 40px;
 
       font-size: 20px;
+
       font-weight: bold;
 
       color: white;
+
       background: #2563eb;
 
       border: none;
+
       border-radius: 12px;
 
       box-shadow:
         0 5px 20px rgba(0,0,0,0.3);
+
     }
 
-    /* Botón de sonido */
+
+    /* =========================
+       BOTÓN SONIDO
+       ========================= */
 
     #sonido {
+
       position: fixed;
 
       top: 20px;
@@ -101,21 +132,28 @@
       background: #2563eb;
 
       border: none;
+
       border-radius: 25px;
 
       font-size: 15px;
+
       font-weight: bold;
 
       display: none;
+
     }
 
   </style>
+
 </head>
 
 
 <body>
 
-  <!-- PANTALLA INICIAL -->
+
+  <!-- =========================
+       INICIO
+       ========================= -->
 
   <div id="inicio">
 
@@ -130,21 +168,33 @@
   </div>
 
 
-  <!-- BOTÓN DE SONIDO -->
+  <!-- =========================
+       SONIDO
+       ========================= -->
 
   <button id="sonido">
     🔊 Activar sonido
   </button>
 
 
-  <!-- AR -->
+
+  <!-- =========================
+       MINDAR
+       ========================= -->
 
   <a-scene
 
     mindar-image="
       imageTargetSrc: ./targets.mind;
       autoStart: false;
+
       uiScanning: yes;
+
+      filterMinCF: 0.00005;
+      filterBeta: 0.0001;
+
+      missTolerance: 10;
+      warmupTolerance: 5;
     "
 
     color-space="sRGB"
@@ -162,7 +212,10 @@
 
   >
 
-    <!-- VIDEO -->
+
+    <!-- =========================
+         VIDEO
+         ========================= -->
 
     <a-assets>
 
@@ -189,7 +242,10 @@
     </a-assets>
 
 
-    <!-- CÁMARA -->
+
+    <!-- =========================
+         CÁMARA
+         ========================= -->
 
     <a-camera
 
@@ -200,13 +256,19 @@
     ></a-camera>
 
 
-    <!-- TARGET 0 = CITA001 -->
+
+    <!-- =========================
+         CITA 001
+         TARGET 0
+         ========================= -->
 
     <a-entity
 
       id="target0"
 
-      mindar-image-target="targetIndex: 0"
+      mindar-image-target="
+        targetIndex: 0
+      "
 
     >
 
@@ -232,7 +294,13 @@
   </a-scene>
 
 
+
   <script>
+
+
+    /* =========================
+       ELEMENTOS
+       ========================= */
 
     const inicio =
       document.getElementById("inicio");
@@ -253,93 +321,101 @@
       document.querySelector("a-scene");
 
 
-    let experienciaIniciada = false;
-
-    let imagenDetectada = false;
-
     let sonidoActivado = false;
 
-
-    /*
-    ==========================================
-    COMENZAR EXPERIENCIA
-    ==========================================
-    */
-
-    comenzar.addEventListener("click", async () => {
-
-      inicio.style.display = "none";
-
-      experienciaIniciada = true;
-
-      /*
-      IMPORTANTE:
-
-      El video comienza MUTED.
-      Esto evita que Chrome bloquee
-      la reproducción automática.
-      */
-
-      video.muted = true;
-
-      video.setAttribute("muted", "");
-
-      video.setAttribute("playsinline", "");
+    let targetDetectado = false;
 
 
-      /*
-      Cargar video
-      */
 
-      video.load();
+    /* =========================
+       COMENZAR
+       ========================= */
+
+    comenzar.addEventListener(
+      "click",
+      async () => {
+
+        inicio.style.display = "none";
 
 
-      /*
-      Iniciar MindAR
-      */
+        /*
+        IMPORTANTE:
 
-      try {
+        El video empieza SIEMPRE
+        sin sonido.
+        */
 
-        const mindar =
-          scene.systems["mindar-image-system"];
+        video.muted = true;
 
-        await mindar.start();
-
-        console.log("MindAR iniciado");
-
-      } catch (error) {
-
-        console.error(
-          "Error iniciando MindAR:",
-          error
+        video.setAttribute(
+          "muted",
+          ""
         );
 
+        video.setAttribute(
+          "playsinline",
+          ""
+        );
+
+
+        /*
+        Iniciar cámara
+        */
+
+        try {
+
+          const mindar =
+            scene.systems[
+              "mindar-image-system"
+            ];
+
+          await mindar.start();
+
+          console.log(
+            "MindAR iniciado"
+          );
+
+        }
+
+        catch (error) {
+
+          console.error(
+            "Error iniciando MindAR:",
+            error
+          );
+
+        }
+
       }
+    );
 
-    });
 
 
-    /*
-    ==========================================
-    CUANDO ENCUENTRA CITA001
-    ==========================================
-    */
+    /* =========================
+       IMAGEN ENCONTRADA
+       ========================= */
 
     target.addEventListener(
       "targetFound",
       async () => {
 
-        console.log("Cita001 detectada");
+        console.log(
+          "Cita001 encontrada"
+        );
 
-        imagenDetectada = true;
+        targetDetectado = true;
 
 
         /*
-        El video siempre comienza
+        SIEMPRE empieza
         sin sonido.
         */
 
-        video.muted = true;
+        if (!sonidoActivado) {
+
+          video.muted = true;
+
+        }
 
 
         try {
@@ -347,12 +423,12 @@
           await video.play();
 
           console.log(
-            "Cita001 reproduciéndose"
+            "Video reproduciéndose"
           );
 
 
           /*
-          Mostrar botón de sonido
+          Mostrar botón
           */
 
           if (!sonidoActivado) {
@@ -362,10 +438,12 @@
 
           }
 
-        } catch (error) {
+        }
+
+        catch (error) {
 
           console.error(
-            "No se pudo reproducir:",
+            "Error reproduciendo video:",
             error
           );
 
@@ -375,11 +453,10 @@
     );
 
 
-    /*
-    ==========================================
-    CUANDO DEJA DE VER CITA001
-    ==========================================
-    */
+
+    /* =========================
+       IMAGEN PERDIDA
+       ========================= */
 
     target.addEventListener(
       "targetLost",
@@ -389,13 +466,9 @@
           "Cita001 perdida"
         );
 
-        imagenDetectada = false;
+        targetDetectado = false;
 
         video.pause();
-
-        /*
-        Ocultar botón de sonido
-        */
 
         sonido.style.display =
           "none";
@@ -404,11 +477,10 @@
     );
 
 
-    /*
-    ==========================================
-    ACTIVAR SONIDO
-    ==========================================
-    */
+
+    /* =========================
+       ACTIVAR SONIDO
+       ========================= */
 
     sonido.addEventListener(
       "click",
@@ -418,11 +490,14 @@
 
         video.muted = false;
 
+
         try {
 
           await video.play();
 
-        } catch (error) {
+        }
+
+        catch (error) {
 
           console.error(
             "Error activando sonido:",
@@ -430,6 +505,7 @@
           );
 
         }
+
 
         sonido.style.display =
           "none";
@@ -440,5 +516,7 @@
 
   </script>
 
+
 </body>
+
 </html>
