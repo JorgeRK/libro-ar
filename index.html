@@ -1,119 +1,305 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
-    <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.2/dist/mindar-image-aframe.prod.js"></script>
-    <style>
-      body {
-        margin: 0;
-        padding: 0;
-        overflow: hidden;
-        background-color: #000;
-        font-family: sans-serif;
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Realidad Aumentada</title>
+
+  <!-- A-Frame -->
+  <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
+
+  <!-- MindAR -->
+  <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.2/dist/mindar-image-aframe.prod.js"></script>
+
+  <style>
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: black;
+    }
+
+    /* Botón para activar sonido */
+    #btn-sound {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+
+      z-index: 99999;
+
+      padding: 14px 22px;
+
+      background: rgba(0, 0, 0, 0.85);
+      color: white;
+
+      border: 2px solid white;
+      border-radius: 10px;
+
+      font-family: Arial, sans-serif;
+      font-size: 16px;
+      font-weight: bold;
+
+      cursor: pointer;
+    }
+
+    #btn-sound:active {
+      transform: scale(0.96);
+    }
+
+    /* Ocultar botón */
+    #btn-sound.hidden {
+      display: none;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- BOTÓN DE SONIDO -->
+  <button id="btn-sound">
+    🔊 Activar sonido
+  </button>
+
+
+  <!-- ESCENA AR -->
+  <a-scene
+
+    mindar-image="
+      imageTargetSrc: ./targets.mind;
+      autoStart: true;
+      uiScanning: yes;
+      uiLoading: yes;
+      uiError: yes;
+    "
+
+    color-space="sRGB"
+
+    renderer="
+      colorManagement: true;
+      physicallyCorrectLights;
+      antialias: true;
+    "
+
+    vr-mode-ui="enabled: false"
+
+    device-orientation-permission-ui="enabled: false"
+
+    embedded
+  >
+
+
+    <!-- ========================= -->
+    <!-- RECURSOS -->
+    <!-- ========================= -->
+
+    <a-assets>
+
+      <video
+        id="vid0"
+
+        src="./Cita001Concierto.mp4"
+
+        preload="auto"
+
+        loop
+
+        playsinline
+        webkit-playsinline
+
+        crossorigin="anonymous"
+
+        muted
+      ></video>
+
+    </a-assets>
+
+
+    <!-- ========================= -->
+    <!-- CÁMARA -->
+    <!-- ========================= -->
+
+    <a-camera
+      position="0 0 0"
+      look-controls="enabled: false"
+      wasd-controls="enabled: false">
+    </a-camera>
+
+
+    <!-- ========================= -->
+    <!-- TARGET -->
+    <!-- ========================= -->
+
+    <a-entity
+      id="target"
+      mindar-image-target="targetIndex: 0">
+
+
+      <!--
+        VIDEO
+
+        El target de MindAR tiene un ancho
+        de referencia de aproximadamente 1.
+
+        El video se hace más grande para
+        cubrir mejor la imagen detectada.
+      -->
+
+      <a-video
+
+        id="ar-video"
+
+        src="#vid0"
+
+        position="0 0 0.01"
+
+        width="1.00"
+        height="1.78"
+
+        rotation="0 0 0"
+
+        material="
+          shader: flat;
+          side: double;
+        "
+
+        visible="false"
+
+      ></a-video>
+
+    </a-entity>
+
+  </a-scene>
+
+
+  <!-- ========================= -->
+  <!-- JAVASCRIPT -->
+  <!-- ========================= -->
+
+  <script>
+
+    const target = document.querySelector("#target");
+
+    const video = document.querySelector("#vid0");
+
+    const arVideo = document.querySelector("#ar-video");
+
+    const soundButton = document.querySelector("#btn-sound");
+
+
+    /*
+     * ============================
+     * ACTIVAR SONIDO
+     * ============================
+     */
+
+    soundButton.addEventListener("click", async () => {
+
+      try {
+
+        video.muted = false;
+
+        await video.play();
+
+        soundButton.classList.add("hidden");
+
+      } catch (error) {
+
+        console.log(
+          "No se pudo activar el sonido:",
+          error
+        );
+
       }
 
-      /* Contenedor del video en pantalla completa */
-      #fullscreen-video-container {
-        display: none;
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100vw;
-        height: 100vh;
-        z-index: 99999;
-        background: #000;
+    });
+
+
+    /*
+     * ============================
+     * CUANDO ENCUENTRA LA IMAGEN
+     * ============================
+     */
+
+    target.addEventListener("targetFound", async () => {
+
+      console.log("Imagen detectada");
+
+      arVideo.setAttribute(
+        "visible",
+        "true"
+      );
+
+      try {
+
+        await video.play();
+
+      } catch (error) {
+
+        console.log(
+          "Reproducción automática bloqueada:",
+          error
+        );
+
       }
 
-      #fullscreen-video {
-        width: 100%;
-        height: 100%;
-        object-fit: cover; /* Llena toda la pantalla del móvil sin bordes negros */
-      }
+    });
 
-      /* Botón para cerrar el video y volver a escanear */
-      #btn-close {
-        position: absolute;
-        top: 20px;
-        right: 20px;
-        z-index: 100000;
-        background: rgba(0, 0, 0, 0.7);
-        color: #fff;
-        border: 1px solid #fff;
-        border-radius: 50%;
-        width: 44px;
-        height: 44px;
-        font-size: 20px;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-      }
 
-      /* Botón de activación de sonido */
-      #btn-sound {
-        position: absolute;
-        top: 20px;
-        left: 20px;
-        z-index: 10000;
-        padding: 12px 18px;
-        background: rgba(0, 0, 0, 0.85);
-        color: #fff;
-        border: 2px solid #fff;
-        border-radius: 8px;
-        font-size: 14px;
-        font-weight: bold;
-      }
-    </style>
-  </head>
-  <body>
-    <button id="btn-sound">Activar Sonido</button>
+    /*
+     * ============================
+     * CUANDO PIERDE LA IMAGEN
+     * ============================
+     */
 
-    <!-- Reproductor nativo pantalla completa -->
-    <div id="fullscreen-video-container">
-      <button id="btn-close">&times;</button>
-      <video id="fullscreen-video" playsinline webkit-playsinline loop></video>
-    </div>
+    target.addEventListener("targetLost", () => {
 
-    <!-- Escáner MindAR -->
-    <a-scene 
-      mindar-image="imageTargetSrc: ./targets.mind; autoStart: true; uiScanning: yes;" 
-      color-space="sRGB" 
-      vr-mode-ui="enabled: false" 
-      device-orientation-permission-ui="enabled: false">
+      console.log("Imagen perdida");
 
-      <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+      video.pause();
 
-      <a-entity id="target0" mindar-image-target="targetIndex: 0"></a-entity>
-    </a-scene>
+      arVideo.setAttribute(
+        "visible",
+        "false"
+      );
 
-    <script>
-      let soundEnabled = false;
-      const soundBtn = document.getElementById('btn-sound');
-      const container = document.getElementById('fullscreen-video-container');
-      const video = document.getElementById('fullscreen-video');
-      const closeBtn = document.getElementById('btn-close');
-      const target0 = document.getElementById('target0');
+    });
 
-      soundBtn.addEventListener('click', () => {
-        soundEnabled = true;
-        soundBtn.style.display = 'none';
-      });
 
-      target0.addEventListener('targetFound', () => {
-        if (container.style.display !== 'block') {
-          video.src = './Cita001Concierto.mp4';
-          video.muted = !soundEnabled;
-          container.style.display = 'block';
-          video.play().catch(e => console.log(e));
-        }
-      });
+    /*
+     * ============================
+     * CUANDO TERMINA / CARGA VIDEO
+     * ============================
+     */
 
-      closeBtn.addEventListener('click', () => {
-        video.pause();
-        video.src = '';
-        container.style.display = 'none';
-      });
-    </script>
-  </body>
+    video.addEventListener("loadeddata", () => {
+
+      console.log(
+        "Video cargado correctamente"
+      );
+
+    });
+
+
+    /*
+     * ============================
+     * CONTROL DE ERRORES
+     * ============================
+     */
+
+    video.addEventListener("error", (error) => {
+
+      console.log(
+        "Error cargando el video:",
+        error
+      );
+
+    });
+
+  </script>
+
+</body>
 </html>
