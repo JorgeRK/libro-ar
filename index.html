@@ -7,81 +7,33 @@
   <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.2/dist/mindar-image-aframe.prod.js"></script>
   <style>
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
     html, body {
-      margin: 0;
-      padding: 0;
-      width: 100%;
-      height: 100%;
-      overflow: hidden;
-      background: #000;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+      margin: 0; padding: 0; width: 100%; height: 100%;
+      overflow: hidden; background: #000;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     }
     #inicio {
-      position: fixed;
-      inset: 0;
-      width: 100vw;
-      height: 100vh;
-      background: #111827;
-      z-index: 10000;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      gap: 30px;
+      position: fixed; inset: 0; width: 100vw; height: 100vh;
+      background: #111827; z-index: 10000;
+      display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 25px;
     }
-    #inicio h1 {
-      margin: 0;
-      color: white;
-      font-size: clamp(28px, 7vw, 50px);
-      font-weight: 700;
-      text-align: center;
-    }
+    #inicio h1 { color: #fff; font-size: 32px; margin: 0; font-weight: 700; }
     #btn-comenzar {
-      border: 0;
-      padding: 16px 36px;
-      background: #2563eb;
-      color: white;
-      font-size: 18px;
-      font-weight: 700;
-      border-radius: 12px;
-      cursor: pointer;
+      border: 0; padding: 16px 36px; background: #2563eb; color: white;
+      font-size: 18px; font-weight: 700; border-radius: 12px; cursor: pointer;
     }
-    #btn-comenzar:active {
-      transform: scale(0.97);
-    }
+    #btn-comenzar:active { transform: scale(0.97); }
     #video-container {
-      position: fixed;
-      inset: 0;
-      width: 100vw;
-      height: 100vh;
-      z-index: 5000;
-      display: none;
-      background: #000;
+      position: fixed; inset: 0; width: 100vw; height: 100vh;
+      z-index: 5000; display: none; background: #000;
     }
-    #video-pantalla {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
+    #video-pantalla { width: 100%; height: 100%; object-fit: cover; }
     #btn-cerrar {
-      position: absolute;
-      top: 20px;
-      right: 20px;
-      z-index: 5001;
-      background: rgba(0, 0, 0, 0.7);
-      color: #fff;
-      border: 1px solid #fff;
-      border-radius: 50%;
-      width: 44px;
-      height: 44px;
-      font-size: 22px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      position: absolute; top: 20px; right: 20px; z-index: 5001;
+      background: rgba(0, 0, 0, 0.7); color: #fff; border: 1px solid #fff;
+      border-radius: 50%; width: 44px; height: 44px; font-size: 22px;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
     }
   </style>
 </head>
@@ -105,11 +57,9 @@
     device-orientation-permission-ui="enabled: false">
 
     <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
-
-    <!-- Targets declarados como disparadores limpios -->
-    <a-entity id="target0" mindar-image-target="targetIndex: 0"></a-entity>
-    <a-entity id="target1" mindar-image-target="targetIndex: 1"></a-entity>
-    <a-entity id="target2" mindar-image-target="targetIndex: 2"></a-entity>
+    
+    <!-- Generador dinámico de targets -->
+    <a-entity id="targets-group"></a-entity>
   </a-scene>
 
   <script>
@@ -118,44 +68,45 @@
     const container = document.getElementById('video-container');
     const video = document.getElementById('video-pantalla');
     const btnCerrar = document.getElementById('btn-cerrar');
+    const targetsGroup = document.getElementById('targets-group');
     const sceneEl = document.querySelector('a-scene');
 
-    // Mapeo directo: índice del target -> archivo de video
-    const listaVideos = {
-      0: './Videos/Cita001.mp4',
-      1: './Videos/Cita002.mp4',
-      2: './Videos/Cita003.mp4'
-    };
+    // Crea automáticamente los 100 targets vinculados a ./Videos/Cita001.mp4 ... Cita100.mp4
+    for (let i = 0; i < 100; i++) {
+      const el = document.createElement('a-entity');
+      el.setAttribute('mindar-image-target', `targetIndex: ${i}`);
+      
+      const numCita = String(i + 1).padStart(3, '0');
+      const rutaVideo = `./Videos/Cita${numCita}.mp4`;
+
+      // Cuando detecta la imagen (Muestra el video)
+      el.addEventListener('targetFound', () => {
+        if (container.style.display !== 'block') {
+          video.src = rutaVideo;
+          video.muted = false;
+          container.style.display = 'block';
+          video.play().catch(e => console.log('Error play:', e));
+        }
+      });
+
+      // Cuando pierde la imagen (Oculta el video)
+      el.addEventListener('targetLost', () => {
+        video.pause();
+        container.style.display = 'none';
+      });
+
+      targetsGroup.appendChild(el);
+    }
 
     btnComenzar.addEventListener('click', async () => {
       inicio.style.display = 'none';
-      
-      // Desbloqueo nativo de audio
       video.muted = false;
-      
-      // Iniciar el motor AR
       const mindarSystem = sceneEl.systems['mindar-image-system'];
       await mindarSystem.start();
     });
 
-    function reproducir(index) {
-      if (listaVideos[index] && container.style.display !== 'block') {
-        video.src = listaVideos[index];
-        video.muted = false;
-        container.style.display = 'block';
-        video.play().catch(e => console.log('Error play:', e));
-      }
-    }
-
-    // Eventos de detección
-    document.getElementById('target0').addEventListener('targetFound', () => reproducir(0));
-    document.getElementById('target1').addEventListener('targetFound', () => reproducir(1));
-    document.getElementById('target2').addEventListener('targetFound', () => reproducir(2));
-
-    // Cerrar video y volver al escaneo
     btnCerrar.addEventListener('click', () => {
       video.pause();
-      video.src = '';
       container.style.display = 'none';
     });
   </script>
