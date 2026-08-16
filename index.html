@@ -23,7 +23,7 @@
 
     #contenedor-textos {
       position: absolute;
-      bottom: 15vh; /* Lo levanta un 15% desde abajo, a prueba de cualquier navegador */
+      bottom: 15vh;
       width: 100%;
       display: flex; flex-direction: column; align-items: center; gap: 15px;
     }
@@ -37,6 +37,15 @@
     }
     #btn-comenzar:active { transform: scale(0.97); }
     
+    /* Botón de la linterna (Visible al escanear) */
+    #btn-flash {
+      position: fixed; top: 20px; left: 20px; z-index: 4999;
+      background: rgba(0, 0, 0, 0.7); color: #fff; border: 1px solid #fff;
+      border-radius: 50%; width: 44px; height: 44px; font-size: 20px;
+      cursor: pointer; display: none; align-items: center; justify-content: center;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+    }
+
     #video-container {
       position: fixed; inset: 0; width: 100vw; height: 100vh;
       z-index: 5000; display: none; background: #000;
@@ -58,6 +67,8 @@
       <button id="btn-comenzar">Comenzar Experiencia</button>
     </div>
   </div>
+
+  <button id="btn-flash">🔦</button>
 
   <div id="video-container">
     <button id="btn-cerrar">&times;</button>
@@ -81,10 +92,12 @@
     const container = document.getElementById('video-container');
     const video = document.getElementById('video-pantalla');
     const btnCerrar = document.getElementById('btn-cerrar');
+    const btnFlash = document.getElementById('btn-flash');
     const targetsGroup = document.getElementById('targets-group');
     const sceneEl = document.querySelector('a-scene');
 
     let videoActual = null;
+    let flashEncendido = false;
 
     for (let i = 0; i < 100; i++) {
       const el = document.createElement('a-entity');
@@ -113,6 +126,7 @@
 
     btnComenzar.addEventListener('click', async () => {
       inicio.style.display = 'none';
+      btnFlash.style.display = 'flex'; // Muestra el botón de la linterna
       video.muted = false;
       const mindarSystem = sceneEl.systems['mindar-image-system'];
       await mindarSystem.start();
@@ -123,6 +137,39 @@
       video.currentTime = 0; 
       videoActual = null;    
       container.style.display = 'none';
+    });
+
+    // Función para la linterna
+    btnFlash.addEventListener('click', async () => {
+      try {
+        // Busca el elemento de video nativo que usa MindAR para la cámara
+        const videos = document.querySelectorAll('video');
+        let trackCamara = null;
+        
+        videos.forEach(v => {
+          if (v.id !== 'video-pantalla' && v.srcObject) {
+            trackCamara = v.srcObject.getVideoTracks()[0];
+          }
+        });
+
+        if (trackCamara) {
+          const capabilities = trackCamara.getCapabilities();
+          if (!capabilities.torch) {
+            alert('El navegador no permite encender la linterna en este dispositivo.');
+            return;
+          }
+
+          flashEncendido = !flashEncendido;
+          await trackCamara.applyConstraints({
+            advanced: [{ torch: flashEncendido }]
+          });
+
+          // Cambia el color del botón para indicar si está encendido
+          btnFlash.style.background = flashEncendido ? '#facc15' : 'rgba(0, 0, 0, 0.7)';
+        }
+      } catch (err) {
+        console.log('Error al acceder al flash:', err);
+      }
     });
   </script>
 </body>
