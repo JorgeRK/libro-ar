@@ -37,7 +37,6 @@
     }
     #btn-comenzar:active { transform: scale(0.97); }
     
-    /* Botón de la linterna (Visible al escanear) */
     #btn-flash {
       position: fixed; top: 20px; left: 20px; z-index: 4999;
       background: rgba(0, 0, 0, 0.7); color: #fff; border: 1px solid #fff;
@@ -99,11 +98,25 @@
     let videoActual = null;
     let flashEncendido = false;
 
+    const usuarioGitHub = "r-co95";
+
+    function obtenerRuta(index) {
+      const num = index + 1;
+      let bodega = "";
+      
+      if (num <= 25) bodega = "videos-libro-1";
+      else if (num <= 50) bodega = "videos-libro-2";
+      else if (num <= 75) bodega = "videos-libro-3";
+      else bodega = "videos-libro-4";
+
+      const nombreArchivo = `Cita${String(num).padStart(3, '0')}.mp4`;
+      return `https://raw.githubusercontent.com/${usuarioGitHub}/${bodega}/main/${nombreArchivo}`;
+    }
+
     for (let i = 0; i < 100; i++) {
       const el = document.createElement('a-entity');
       el.setAttribute('mindar-image-target', `targetIndex: ${i}`);
-      const numCita = String(i + 1).padStart(3, '0');
-      const rutaVideo = `./Videos/Cita${numCita}.mp4`;
+      const rutaVideo = obtenerRuta(i);
 
       el.addEventListener('targetFound', () => {
         if (videoActual !== rutaVideo) {
@@ -126,7 +139,7 @@
 
     btnComenzar.addEventListener('click', async () => {
       inicio.style.display = 'none';
-      btnFlash.style.display = 'flex'; // Muestra el botón de la linterna
+      btnFlash.style.display = 'flex';
       video.muted = false;
       const mindarSystem = sceneEl.systems['mindar-image-system'];
       await mindarSystem.start();
@@ -139,10 +152,8 @@
       container.style.display = 'none';
     });
 
-    // Función para la linterna
     btnFlash.addEventListener('click', async () => {
       try {
-        // Busca el elemento de video nativo que usa MindAR para la cámara
         const videos = document.querySelectorAll('video');
         let trackCamara = null;
         
@@ -164,7 +175,6 @@
             advanced: [{ torch: flashEncendido }]
           });
 
-          // Cambia el color del botón para indicar si está encendido
           btnFlash.style.background = flashEncendido ? '#facc15' : 'rgba(0, 0, 0, 0.7)';
         }
       } catch (err) {
