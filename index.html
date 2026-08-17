@@ -224,34 +224,22 @@
 
           if (respuesta.ok) {
             ubicacionesEncontradas[nombreArchivo] = bodega;
-
-            console.log(
-              `Cita encontrada: ${nombreArchivo} → ${bodega}`
-            );
-
+            console.log(`Cita encontrada: ${nombreArchivo} → ${bodega}`);
             return ruta;
           }
         } catch (error) {}
       }
 
-      console.error(
-        `${nombreArchivo} no existe en ninguno de los 4 contenedores.`
-      );
-
+      console.error(`${nombreArchivo} no existe en ninguno de los 4 contenedores.`);
       return null;
     }
 
     for (let i = 0; i < 100; i++) {
       const el = document.createElement('a-entity');
-
-      el.setAttribute(
-        'mindar-image-target',
-        `targetIndex: ${i}`
-      );
+      el.setAttribute('mindar-image-target', `targetIndex: ${i}`);
 
       el.addEventListener('targetFound', async () => {
         const rutaVideo = await buscarVideo(i);
-
         if (!rutaVideo) return;
 
         if (videoActual !== rutaVideo) {
@@ -262,10 +250,7 @@
 
         video.muted = false;
         container.style.display = 'block';
-
-        video.play().catch(e => {
-          console.log('Error play:', e);
-        });
+        video.play().catch(e => console.log('Error play:', e));
       });
 
       el.addEventListener('targetLost', () => {
@@ -274,66 +259,48 @@
           container.style.display = 'none';
         }
       });
-
       targetsGroup.appendChild(el);
     }
 
     document.getElementById('btn-comenzar').addEventListener('click', async () => {
       inicio.style.display = 'none';
       btnFlash.style.display = 'flex';
-
       video.muted = false;
-
-      const mindarSystem =
-        sceneEl.systems['mindar-image-system'];
-
+      const mindarSystem = sceneEl.systems['mindar-image-system'];
       await mindarSystem.start();
     });
 
-    btnCerrar.addEventListener('click', () => {
+    // Función de cierre blindada
+    function cerrarReproduccion(e) {
+      if(e) { e.preventDefault(); e.stopPropagation(); }
       video.pause();
       video.currentTime = 0;
       videoActual = null;
       container.style.display = 'none';
-    });
+    }
+
+    btnCerrar.addEventListener('click', cerrarReproduccion);
+    btnCerrar.addEventListener('touchend', cerrarReproduccion);
 
     btnFlash.addEventListener('click', async () => {
       try {
         const videos = document.querySelectorAll('video');
         let trackCamara = null;
-
         videos.forEach(v => {
           if (v.id !== 'video-pantalla' && v.srcObject) {
-            trackCamara =
-              v.srcObject.getVideoTracks()[0];
+            trackCamara = v.srcObject.getVideoTracks()[0];
           }
         });
 
-        if (
-          trackCamara &&
-          trackCamara.getCapabilities().torch
-        ) {
+        if (trackCamara && trackCamara.getCapabilities().torch) {
           flashEncendido = !flashEncendido;
-
-          await trackCamara.applyConstraints({
-            advanced: [
-              {
-                torch: flashEncendido
-              }
-            ]
-          });
-
-          btnFlash.style.background =
-            flashEncendido
-              ? '#facc15'
-              : 'rgba(0, 0, 0, 0.7)';
+          await trackCamara.applyConstraints({ advanced: [{ torch: flashEncendido }] });
+          btnFlash.style.background = flashEncendido ? '#facc15' : 'rgba(0, 0, 0, 0.7)';
         }
-
       } catch (err) {
         console.log('Error flash:', err);
       }
     });
   </script>
-
 </body>
 </html>
